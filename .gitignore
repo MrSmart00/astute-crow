@@ -121,6 +121,9 @@ dist/
 # Serena MCP local settings
 .serena/
 
+# Documentation folder
+.docs/
+
 # OS generated files
 .DS_Store
 .DS_Store?
