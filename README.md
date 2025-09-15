@@ -1,6 +1,6 @@
 # Astute Crow
 
-TypeScript + Vite を使用したモダンな Hello World Web アプリケーションです。
+TypeScript + Vite を使用したモダンな Web アプリケーションです。現在は Hello World をベースとしつつ、Zenn トレンド表示機能の開発を進めています。
 
 ## 🚀 特徴
 
@@ -8,6 +8,7 @@ TypeScript + Vite を使用したモダンな Hello World Web アプリケーシ
 - 🎯 **TypeScript**: 型安全な JavaScript 開発
 - 🎨 **モダンCSS**: CSS Variables、Grid、Flexbox を使用したレスポンシブデザイン
 - 🌙 **ダークテーマ**: 目に優しいダークモードUI
+- 📈 **Zennトレンド表示**: Zennの人気記事情報を取得・表示（開発中）
 
 ## 📋 必要な環境
 
@@ -30,13 +31,13 @@ npm run dev
 
 ## 📱 使用方法
 
-開発サーバーを起動すると、自動的にブラウザで `http://localhost:3000` が開きます。
+開発サーバーを起動すると、自動的にブラウザが開きます。ポートが使用中の場合は、利用可能なポート（通常は3001など）で起動します。
 
 ## 🔧 利用可能なコマンド
 
 | コマンド | 説明 |
 |---------|------|
-| `npm run dev` | 開発サーバーを起動（localhost:3000） |
+| `npm run dev` | 開発サーバーを起動 |
 | `npm run build` | プロダクション用ビルドを作成 |
 | `npm run preview` | ビルド結果をプレビュー |
 
@@ -44,13 +45,38 @@ npm run dev
 
 ```
 ├── src/
-│   ├── main.ts          # エントリーポイント
-│   └── style.css        # スタイルシート
-├── index.html           # HTMLテンプレート
-├── tsconfig.json        # TypeScript設定
-├── vite.config.ts       # Vite設定
-└── package.json         # パッケージ設定
+│   ├── main.ts              # エントリーポイント
+│   ├── style.css            # スタイルシート
+│   ├── components/
+│   │   └── ZennTrends.ts    # Zennトレンド表示コンポーネント
+│   ├── services/
+│   │   └── zennService.ts   # Zenn API連携サービス
+│   └── types/
+│       └── zenn.ts          # Zenn関連の型定義
+├── frontend/                # フロントエンド用ディレクトリ（将来の拡張予定）
+├── backend/                 # バックエンド用ディレクトリ（将来の拡張予定）
+├── index.html               # HTMLテンプレート
+├── tsconfig.json            # TypeScript設定
+├── vite.config.ts           # Vite設定
+└── package.json             # パッケージ設定
 ```
+
+## 🚧 開発状況
+
+### 完成済み
+- Hello World アプリケーションのベース
+- TypeScript + Vite の開発環境
+- ダークテーマ対応のモダンUI
+
+### 開発中
+- Zenn トレンド表示機能
+- Zenn API からの記事情報取得
+
+### 今後の予定
+- Qiita トレンド表示機能
+- X（Twitter）反応データ連携
+- 総合スコア算出とランキング表示
+- 前日のトレンド動向表示
 
 ## 🏗️ 技術スタック
 
