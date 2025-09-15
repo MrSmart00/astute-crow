@@ -118,6 +118,12 @@ dist/
 # Claude Code local settings
 .claude/settings.local.json
 
+# Serena MCP local settings
+.serena/
+
+# Documentation folder
+.docs/
+
 # OS generated files
 .DS_Store
 .DS_Store?
