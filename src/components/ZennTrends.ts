@@ -73,7 +73,6 @@ export class ZennTrends {
         <div class="zenn-card-header">
           <div class="zenn-emoji">${post.emoji}</div>
           <h3 class="zenn-title">${this.escapeHtml(post.title)}</h3>
-          ${categoryBadge}
         </div>
         <div class="zenn-card-body">
           <div class="zenn-meta">
@@ -87,6 +86,7 @@ export class ZennTrends {
             <img src="${post.user.avatarSmallUrl}" alt="${post.user.name}" class="author-avatar">
             <span class="author-name">${this.escapeHtml(post.user.name || post.user.username)}</span>
           </div>
+          ${categoryBadge}
           <div class="zenn-likes">
             <span class="like-icon">❤️</span>
             <span class="like-count">${post.likedCount}</span>
