@@ -362,6 +362,99 @@ h1 {
   }
 }
 
+/* カテゴリバッジのスタイル */
+.category-badge {
+  display: inline-block;
+  padding: 0.2rem 0.5rem;
+  border-radius: 12px;
+  font-size: 0.7rem;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+  margin-left: auto;
+}
+
+.category-badge.tech {
+  background: linear-gradient(135deg, #667eea, #764ba2);
+  color: white;
+}
+
+.category-badge.idea {
+  background: linear-gradient(135deg, #f093fb, #f5576c);
+  color: white;
+}
+
+.category-badge.book {
+  background: linear-gradient(135deg, #4facfe, #00f2fe);
+  color: white;
+}
+
+.category-badge.free-book {
+  background: linear-gradient(135deg, #43e97b, #38f9d7);
+  color: white;
+}
+
+/* 価格表示のスタイル */
+.price-info {
+  display: inline-block;
+  padding: 0.2rem 0.5rem;
+  border-radius: 8px;
+  font-size: 0.8rem;
+  font-weight: 600;
+  margin-left: 1rem;
+}
+
+.price-info.free {
+  background: #4caf50;
+  color: white;
+}
+
+.price-info.paid {
+  background: #ff9800;
+  color: white;
+}
+
+/* Bookのサマリー表示 */
+.book-summary {
+  color: var(--text-muted);
+  font-size: 0.9rem;
+  line-height: 1.4;
+  margin: 0.5rem 0 0 0;
+}
+
+/* カードヘッダーのレイアウト調整 */
+.zenn-card-header {
+  display: flex;
+  align-items: flex-start;
+  gap: 1rem;
+  margin-bottom: 1rem;
+  position: relative;
+}
+
+.category-badge {
+  position: absolute;
+  top: 0;
+  right: 0;
+  margin: 0;
+}
+
+/* Bookカードの特別なスタイル */
+.zenn-card.book {
+  border-left: 4px solid #4facfe;
+}
+
+.zenn-card.book .zenn-card-body {
+  padding-left: 0.5rem;
+}
+
+/* メタ情報の調整 */
+.zenn-meta {
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+  flex-wrap: wrap;
+}
+
 @media (max-width: 768px) {
   .container {
     padding: 1rem;
@@ -403,5 +496,19 @@ h1 {
     font-size: 0.9rem;
     padding: 0.6rem 1.2rem;
     margin: 0.25rem;
+  }
+
+  .category-badge {
+    font-size: 0.6rem;
+    padding: 0.15rem 0.4rem;
+  }
+
+  .price-info {
+    font-size: 0.7rem;
+    margin-left: 0.5rem;
+  }
+
+  .book-summary {
+    font-size: 0.8rem;
   }
 }
