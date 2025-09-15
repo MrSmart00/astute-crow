@@ -20,15 +20,18 @@ body {
   color: var(--text-color);
   line-height: 1.6;
   min-height: 100vh;
-  display: flex;
-  align-items: center;
-  justify-content: center;
+  padding: 2rem 0;
 }
 
 .container {
-  text-align: center;
-  max-width: 800px;
+  max-width: 1200px;
+  margin: 0 auto;
   padding: 2rem;
+}
+
+.hero-section {
+  text-align: center;
+  margin-bottom: 4rem;
 }
 
 h1 {
@@ -85,17 +88,320 @@ h1 {
   font-size: 1rem;
 }
 
+/* Zennトレンド表示用のスタイル */
+.zenn-trends-section {
+  margin-top: 3rem;
+  text-align: left;
+}
+
+.section-title {
+  font-size: 2rem;
+  font-weight: 600;
+  margin-bottom: 1.5rem;
+  text-align: center;
+  color: var(--primary-color);
+}
+
+.loading-message {
+  text-align: center;
+  color: var(--text-muted);
+  margin-bottom: 2rem;
+  font-style: italic;
+}
+
+.last-updated {
+  text-align: center;
+  color: var(--text-muted);
+  font-size: 0.9rem;
+  margin-bottom: 1.5rem;
+}
+
+.cache-warning {
+  background: linear-gradient(135deg, #ff9800, #f57c00);
+  color: white;
+  padding: 1rem;
+  border-radius: 8px;
+  margin-bottom: 2rem;
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+}
+
+.warning-icon {
+  font-size: 1.2rem;
+}
+
+.warning-text {
+  font-size: 0.9rem;
+}
+
+.zenn-cards-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(350px, 1fr));
+  gap: 1.5rem;
+  margin-top: 2rem;
+}
+
+.zenn-card {
+  background: var(--card-background);
+  border: 1px solid var(--border-color);
+  border-radius: 12px;
+  padding: 1.5rem;
+  text-decoration: none;
+  color: inherit;
+  transition: transform 0.3s ease, border-color 0.3s ease, box-shadow 0.3s ease;
+  display: block;
+}
+
+.zenn-card:hover {
+  transform: translateY(-5px);
+  border-color: var(--primary-color);
+  box-shadow: 0 8px 25px rgba(100, 108, 255, 0.15);
+}
+
+.zenn-card-header {
+  display: flex;
+  align-items: flex-start;
+  gap: 1rem;
+  margin-bottom: 1rem;
+}
+
+.zenn-emoji {
+  font-size: 1.5rem;
+  flex-shrink: 0;
+  margin-top: 0.2rem;
+}
+
+.zenn-title {
+  font-size: 1.1rem;
+  font-weight: 600;
+  line-height: 1.4;
+  margin: 0;
+  color: var(--text-color);
+}
+
+.zenn-card-body {
+  margin-bottom: 1rem;
+}
+
+.zenn-meta {
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+}
+
+.published-date {
+  color: var(--text-muted);
+  font-size: 0.9rem;
+}
+
+.zenn-card-footer {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+
+.zenn-author {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+}
+
+.author-avatar {
+  width: 24px;
+  height: 24px;
+  border-radius: 50%;
+  object-fit: cover;
+}
+
+.author-name {
+  font-size: 0.9rem;
+  color: var(--text-muted);
+}
+
+.zenn-likes {
+  display: flex;
+  align-items: center;
+  gap: 0.3rem;
+}
+
+.like-icon {
+  font-size: 0.9rem;
+}
+
+.like-count {
+  font-size: 0.9rem;
+  font-weight: 600;
+  color: var(--text-color);
+}
+
+/* エラー表示用のスタイル */
+.error-card {
+  background: var(--card-background);
+  border: 1px solid #f44336;
+  border-radius: 12px;
+  padding: 2rem;
+  text-align: center;
+  max-width: 500px;
+  margin: 0 auto;
+}
+
+.error-icon {
+  font-size: 3rem;
+  margin-bottom: 1rem;
+}
+
+.error-title {
+  font-size: 1.2rem;
+  font-weight: 600;
+  margin-bottom: 1rem;
+  color: #f44336;
+}
+
+.error-subtitle {
+  color: var(--text-muted);
+  margin-bottom: 2rem;
+}
+
+.retry-button {
+  background: var(--primary-color);
+  color: white;
+  border: none;
+  padding: 0.75rem 1.5rem;
+  border-radius: 8px;
+  font-size: 1rem;
+  font-weight: 600;
+  cursor: pointer;
+  transition: background-color 0.3s ease;
+  margin-right: 1rem;
+}
+
+.retry-button:hover {
+  background: var(--primary-hover);
+}
+
+.zenn-link-button {
+  background: transparent;
+  color: var(--primary-color);
+  border: 1px solid var(--primary-color);
+  padding: 0.75rem 1.5rem;
+  border-radius: 8px;
+  font-size: 1rem;
+  font-weight: 600;
+  text-decoration: none;
+  display: inline-block;
+  transition: background-color 0.3s ease, color 0.3s ease;
+}
+
+.zenn-link-button:hover {
+  background: var(--primary-color);
+  color: white;
+}
+
+/* スケルトンローディング用のスタイル */
+.skeleton {
+  pointer-events: none;
+}
+
+.skeleton-emoji,
+.skeleton-title,
+.skeleton-line,
+.skeleton-author,
+.skeleton-avatar,
+.skeleton-name,
+.skeleton-likes {
+  background: linear-gradient(90deg, #333 25%, #444 50%, #333 75%);
+  background-size: 200% 100%;
+  animation: skeleton-loading 1.5s infinite;
+  border-radius: 4px;
+}
+
+.skeleton-emoji {
+  width: 24px;
+  height: 24px;
+  border-radius: 50%;
+}
+
+.skeleton-title {
+  height: 20px;
+  width: 80%;
+}
+
+.skeleton-line {
+  height: 16px;
+  width: 100%;
+  margin-bottom: 8px;
+}
+
+.skeleton-line.short {
+  width: 60%;
+}
+
+.skeleton-avatar {
+  width: 24px;
+  height: 24px;
+  border-radius: 50%;
+}
+
+.skeleton-name {
+  height: 16px;
+  width: 80px;
+}
+
+.skeleton-likes {
+  height: 16px;
+  width: 40px;
+}
+
+@keyframes skeleton-loading {
+  0% {
+    background-position: -200% 0;
+  }
+  100% {
+    background-position: 200% 0;
+  }
+}
+
 @media (max-width: 768px) {
   .container {
     padding: 1rem;
   }
-  
+
   h1 {
     font-size: 2.5rem;
   }
-  
+
   .features {
     grid-template-columns: 1fr;
     gap: 1.5rem;
+  }
+
+  .zenn-cards-grid {
+    grid-template-columns: 1fr;
+    gap: 1rem;
+  }
+
+  .zenn-card {
+    padding: 1rem;
+  }
+
+  .section-title {
+    font-size: 1.5rem;
+  }
+
+  .cache-warning {
+    padding: 0.75rem;
+    font-size: 0.85rem;
+  }
+
+  .error-card {
+    padding: 1.5rem;
+  }
+
+  .retry-button,
+  .zenn-link-button {
+    font-size: 0.9rem;
+    padding: 0.6rem 1.2rem;
+    margin: 0.25rem;
   }
 }
