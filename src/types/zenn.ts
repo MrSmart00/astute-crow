@@ -12,14 +12,32 @@ export interface ZennArticle {
   user: ZennUser;
   publishedAt: string;
   emoji: string;
+  postType: 'Article';
+  articleType: 'tech' | 'idea';
 }
+
+export interface ZennBook {
+  id: string;
+  title: string;
+  slug: string;
+  likedCount: number;
+  user: ZennUser;
+  publishedAt: string;
+  emoji: string;
+  postType: 'Book';
+  price: number;
+  isFree: boolean;
+  summary: string;
+}
+
+export type ZennPost = ZennArticle | ZennBook;
 
 export interface ZennTrendResponse {
   articles: ZennArticle[];
 }
 
 export interface CacheData {
-  articles: ZennArticle[];
+  posts: ZennPost[];
   timestamp: string;
   expiresIn: number;
 }
@@ -37,7 +55,7 @@ export interface LoadingState {
 }
 
 export interface ZennTrendsState {
-  articles: ZennArticle[];
+  posts: ZennPost[];
   loading: LoadingState;
   error: ErrorState | null;
   lastUpdated: string | null;
