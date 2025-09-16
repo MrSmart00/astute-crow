@@ -106,6 +106,7 @@ class ZennService {
     const data: any[] = await response.json();
     return data.map(book => ({
       ...book,
+      emoji: book.emoji || '📚',
       postType: 'Book',
       price: book.price || 0,
       isFree: book.isFree || book.price === 0,
