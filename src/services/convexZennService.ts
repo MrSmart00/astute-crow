@@ -1,62 +1,63 @@
-// import { ConvexHttpClient } from "convex/browser"; // 将来の実装用
+import { ConvexHttpClient } from "convex/browser";
+import { api } from "../../convex/_generated/api";
 import { ZennPost } from "../types/zenn";
 
+type TrendsFilter = {
+  forceRefresh?: boolean;
+  postType?: "Article" | "Book";
+  articleType?: "tech" | "idea";
+};
+
 export class ConvexZennService {
-  // 将来のConvex統合のため、現在はコメントアウト
-  // private client: ConvexHttpClient;
+  private client: ConvexHttpClient | null = null;
+  private initializationError: Error | null = null;
 
   constructor() {
-    // 開発段階ではConvexクライアントを初期化しない
-    console.log('ConvexZennService initialized (development mode)');
+    const convexUrl = import.meta.env.VITE_CONVEX_URL;
+
+    if (!convexUrl) {
+      const message = "VITE_CONVEX_URL が設定されていないため、Convex に接続できません";
+      console.error(message);
+      this.initializationError = new Error(message);
+      return;
+    }
+
+    try {
+      this.client = new ConvexHttpClient(convexUrl);
+      console.info("Convex クライアントを初期化しました", { convexUrl });
+    } catch (error) {
+      console.error("Convex クライアントの初期化に失敗しました", error);
+      this.initializationError = new Error("Convex クライアントの初期化に失敗しました");
+      this.client = null;
+    }
   }
 
   /**
    * すべてのトレンド投稿を取得
    */
-  async getTrendPosts(_forceRefresh: boolean = false): Promise<ZennPost[]> {
-    try {
-      // 開発段階ではフォールバックAPIを使用
-      return await this.fallbackToDirectApi();
-    } catch (error) {
-      console.error('getTrendPosts error:', error);
-      throw new Error('トレンドデータの取得に失敗しました');
-    }
+  async getTrendPosts(forceRefresh: boolean = false): Promise<ZennPost[]> {
+    return this.fetchFromConvex({ forceRefresh });
   }
 
   /**
    * 技術記事のトレンドを取得
    */
   async getTechTrends(): Promise<ZennPost[]> {
-    try {
-      return await this.fallbackToDirectApi();
-    } catch (error) {
-      console.error('getTechTrends error:', error);
-      throw new Error('技術記事の取得に失敗しました');
-    }
+    return this.fetchFromConvex({ postType: "Article", articleType: "tech" });
   }
 
   /**
    * アイデア記事のトレンドを取得
    */
   async getIdeaTrends(): Promise<ZennPost[]> {
-    try {
-      return await this.fallbackToDirectApi();
-    } catch (error) {
-      console.error('getIdeaTrends error:', error);
-      throw new Error('アイデア記事の取得に失敗しました');
-    }
+    return this.fetchFromConvex({ postType: "Article", articleType: "idea" });
   }
 
   /**
    * 本のトレンドを取得
    */
   async getBookTrends(): Promise<ZennPost[]> {
-    try {
-      return await this.fallbackToDirectApi();
-    } catch (error) {
-      console.error('getBookTrends error:', error);
-      throw new Error('本の取得に失敗しました');
-    }
+    return this.fetchFromConvex({ postType: "Book" });
   }
 
   /**
@@ -64,10 +65,12 @@ export class ConvexZennService {
    */
   async refreshTrends(): Promise<ZennPost[]> {
     try {
-      return await this.fallbackToDirectApi();
+      const client = this.ensureClient();
+      const posts = await client.action(api.trends.refreshTrends, {});
+      return posts as ZennPost[];
     } catch (error) {
-      console.error('refreshTrends error:', error);
-      throw new Error('データの更新に失敗しました');
+      console.error("Convex refreshTrends アクションが失敗しました", error);
+      throw new Error("Convex からトレンドを更新できませんでした");
     }
   }
 
@@ -75,53 +78,39 @@ export class ConvexZennService {
    * キャッシュをクリア
    */
   async clearCache(): Promise<void> {
-    console.log('キャッシュクリア（開発段階では何もしません）');
+    try {
+      const client = this.ensureClient();
+      await client.mutation(api.trends.clearCache, {});
+      console.info("Convex キャッシュをクリアしました");
+    } catch (error) {
+      console.error("Convex clearCache ミューテーションが失敗しました", error);
+      throw new Error("Convex のキャッシュクリアに失敗しました");
+    }
   }
 
   /**
-   * フォールバック処理：Convexが利用できない場合の処理
+   * Convex からの取得を共通化
    */
-  private async fallbackToDirectApi(): Promise<ZennPost[]> {
-    console.warn('Convex fallback: using direct API calls');
-
+  private async fetchFromConvex(filter: TrendsFilter): Promise<ZennPost[]> {
     try {
-      const [techRes, ideaRes, bookRes] = await Promise.all([
-        fetch('https://zenn-api.vercel.app/api/trendTech'),
-        fetch('https://zenn-api.vercel.app/api/trendIdea'),
-        fetch('https://zenn-api.vercel.app/api/trendBook')
-      ]);
-
-      const [techArticles, ideaArticles, books] = await Promise.all([
-        techRes.ok ? techRes.json() : [],
-        ideaRes.ok ? ideaRes.json() : [],
-        bookRes.ok ? bookRes.json() : []
-      ]);
-
-      const allPosts: ZennPost[] = [
-        ...techArticles.map((article: any) => ({
-          ...article,
-          postType: 'Article',
-          articleType: 'tech'
-        })),
-        ...ideaArticles.map((article: any) => ({
-          ...article,
-          postType: 'Article',
-          articleType: 'idea'
-        })),
-        ...books.map((book: any) => ({
-          ...book,
-          emoji: book.emoji || '📚',
-          postType: 'Book',
-          price: book.price || 0,
-          isFree: book.isFree || book.price === 0,
-          summary: book.summary || ''
-        }))
-      ];
-
-      return allPosts;
+      const client = this.ensureClient();
+      const posts = await client.action(api.trends.getTrends, filter);
+      return posts as ZennPost[];
     } catch (error) {
-      console.error('Fallback API error:', error);
-      throw error;
+      console.error("Convex からのデータ取得に失敗しました", error);
+      throw new Error("Convex からトレンドデータを取得できませんでした");
     }
+  }
+
+  private ensureClient(): ConvexHttpClient {
+    if (this.client) {
+      return this.client;
+    }
+
+    if (this.initializationError) {
+      throw this.initializationError;
+    }
+
+    throw new Error("Convex クライアントが初期化されていません");
   }
 }
