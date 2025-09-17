@@ -1,230 +1,108 @@
-import { ZennArticle, ZennBook, ZennPost, CacheData } from '../types/zenn';
+import { ConvexHttpClient } from "convex/browser";
+import { api } from "../../convex/_generated/api";
+import { ZennArticle } from "../types/zenn";
 
-const CACHE_KEY = 'zenn-trends-cache';
-const CACHE_DURATION = 3600000; // 1時間（ミリ秒）
-const EXTENDED_CACHE_DURATION = 86400000; // 24時間（ミリ秒）
+type TrendsFilter = {
+  forceRefresh?: boolean;
+  articleType?: "tech" | "idea";
+};
 
-const mockPosts: ZennPost[] = [
-  {
-    id: 'mock-1',
-    title: '【サンプル】TypeScriptの型安全性を極める',
-    slug: 'typescript-type-safety',
-    likedCount: 100,
-    user: {
-      username: 'sample_user',
-      name: 'サンプル著者',
-      avatarSmallUrl: 'https://via.placeholder.com/32'
-    },
-    publishedAt: new Date(Date.now() - 86400000).toISOString().split('T')[0], // 昨日の日付
-    emoji: '📝',
-    postType: 'Article',
-    articleType: 'tech'
-  },
-  {
-    id: 'mock-2',
-    title: '【サンプル】React Hooksで状態管理をマスター',
-    slug: 'react-hooks-state-management',
-    likedCount: 85,
-    user: {
-      username: 'react_dev',
-      name: 'React開発者',
-      avatarSmallUrl: 'https://via.placeholder.com/32'
-    },
-    publishedAt: new Date(Date.now() - 86400000).toISOString().split('T')[0],
-    emoji: '⚛️',
-    postType: 'Article',
-    articleType: 'idea'
-  },
-  {
-    id: 'mock-3',
-    title: '【サンプル】Viteで爆速開発環境を構築',
-    slug: 'vite-fast-development',
-    likedCount: 72,
-    user: {
-      username: 'vite_master',
-      name: 'Viteエキスパート',
-      avatarSmallUrl: 'https://via.placeholder.com/32'
-    },
-    publishedAt: new Date(Date.now() - 86400000).toISOString().split('T')[0],
-    emoji: '⚡',
-    postType: 'Book',
-    price: 980,
-    isFree: false,
-    summary: 'Viteでモダンなフロントエンド開発環境を構築する方法を詳しく解説'
-  },
-  {
-    id: 'mock-4',
-    title: '【サンプル】無料で学ぶJavaScript基礎',
-    slug: 'free-javascript-basics',
-    likedCount: 95,
-    user: {
-      username: 'js_teacher',
-      name: 'JS先生',
-      avatarSmallUrl: 'https://via.placeholder.com/32'
-    },
-    publishedAt: new Date(Date.now() - 86400000).toISOString().split('T')[0],
-    emoji: '📚',
-    postType: 'Book',
-    price: 0,
-    isFree: true,
-    summary: 'プログラミング初心者向けのJavaScript入門書'
-  }
-];
+export class ZennService {
+  private client: ConvexHttpClient | null = null;
+  private initializationError: Error | null = null;
 
-class ZennService {
-  private async fetchTechArticles(): Promise<ZennArticle[]> {
-    const response = await fetch('https://zenn-api.vercel.app/api/trendTech');
-    if (!response.ok) {
-      throw new Error(`Tech API request failed: ${response.status}`);
+  constructor() {
+    const convexUrl = import.meta.env.VITE_CONVEX_URL;
+
+    if (!convexUrl) {
+      const message = "VITE_CONVEX_URL が設定されていないため、Convex に接続できません";
+      console.error(message);
+      this.initializationError = new Error(message);
+      return;
     }
-    const data: ZennArticle[] = await response.json();
-    return data.map(article => ({
-      ...article,
-      postType: 'Article',
-      articleType: 'tech'
-    }));
-  }
 
-  private async fetchIdeaArticles(): Promise<ZennArticle[]> {
-    const response = await fetch('https://zenn-api.vercel.app/api/trendIdea');
-    if (!response.ok) {
-      throw new Error(`Idea API request failed: ${response.status}`);
-    }
-    const data: ZennArticle[] = await response.json();
-    return data.map(article => ({
-      ...article,
-      postType: 'Article',
-      articleType: 'idea'
-    }));
-  }
-
-  private async fetchBooks(): Promise<ZennBook[]> {
-    const response = await fetch('https://zenn-api.vercel.app/api/trendBook');
-    if (!response.ok) {
-      throw new Error(`Book API request failed: ${response.status}`);
-    }
-    const data: any[] = await response.json();
-    return data.map(book => ({
-      ...book,
-      emoji: book.emoji || '📚',
-      postType: 'Book',
-      price: book.price || 0,
-      isFree: book.isFree || book.price === 0,
-      summary: book.summary || ''
-    }));
-  }
-
-  private async fetchAllTrends(): Promise<ZennPost[]> {
     try {
-      const [techArticles, ideaArticles, books] = await Promise.all([
-        this.fetchTechArticles(),
-        this.fetchIdeaArticles(),
-        this.fetchBooks()
-      ]);
-
-      const allPosts: ZennPost[] = [...techArticles, ...ideaArticles, ...books];
-      return allPosts.sort((a, b) => b.likedCount - a.likedCount);
+      this.client = new ConvexHttpClient(convexUrl);
+      console.info("Convex クライアントを初期化しました", { convexUrl });
     } catch (error) {
-      console.error('Failed to fetch from Zenn APIs:', error);
-      throw error;
+      console.error("Convex クライアントの初期化に失敗しました", error);
+      this.initializationError = new Error("Convex クライアントの初期化に失敗しました");
+      this.client = null;
     }
   }
 
-  private getCacheData(): CacheData | null {
+  /**
+   * すべてのトレンド記事を取得
+   */
+  async getTrendArticles(forceRefresh: boolean = false): Promise<ZennArticle[]> {
+    return this.fetchFromConvex({ forceRefresh });
+  }
+
+  /**
+   * 技術記事のトレンドを取得
+   */
+  async getTechTrends(): Promise<ZennArticle[]> {
+    return this.fetchFromConvex({ articleType: "tech" });
+  }
+
+  /**
+   * アイデア記事のトレンドを取得
+   */
+  async getIdeaTrends(): Promise<ZennArticle[]> {
+    return this.fetchFromConvex({ articleType: "idea" });
+  }
+
+  /**
+   * 手動でデータを更新
+   */
+  async refreshTrends(): Promise<ZennArticle[]> {
     try {
-      const cached = localStorage.getItem(CACHE_KEY);
-      if (!cached) return null;
-
-      return JSON.parse(cached) as CacheData;
+      const client = this.ensureClient();
+      const articles = await client.action(api.trends.refreshTrends, {});
+      return articles as ZennArticle[];
     } catch (error) {
-      console.error('Failed to parse cache data:', error);
-      localStorage.removeItem(CACHE_KEY);
-      return null;
+      console.error("Convex refreshTrends アクションが失敗しました", error);
+      throw new Error("Convex からトレンドを更新できませんでした");
     }
   }
 
-  private setCacheData(posts: ZennPost[]): void {
+  /**
+   * キャッシュをクリア
+   */
+  async clearCache(): Promise<void> {
     try {
-      const cacheData: CacheData = {
-        posts,
-        timestamp: new Date().toISOString(),
-        expiresIn: CACHE_DURATION
-      };
-      localStorage.setItem(CACHE_KEY, JSON.stringify(cacheData));
+      const client = this.ensureClient();
+      await client.mutation(api.trends.clearCache, {});
+      console.info("Convex キャッシュをクリアしました");
     } catch (error) {
-      console.error('Failed to cache data:', error);
+      console.error("Convex clearCache ミューテーションが失敗しました", error);
+      throw new Error("Convex のキャッシュクリアに失敗しました");
     }
   }
 
-  private isCacheValid(cache: CacheData, maxAge: number = CACHE_DURATION): boolean {
-    const now = Date.now();
-    const cacheTime = new Date(cache.timestamp).getTime();
-    return (now - cacheTime) < maxAge;
-  }
-
-  private filterYesterdayPosts(posts: ZennPost[]): ZennPost[] {
-    const yesterday = new Date();
-    yesterday.setDate(yesterday.getDate() - 1);
-    const yesterdayStr = yesterday.toISOString().split('T')[0];
-
-    const filtered = posts.filter(post => {
-      const publishedDate = post.publishedAt.split('T')[0];
-      return publishedDate === yesterdayStr;
-    });
-
-    // もし昨日の投稿がない場合は、最新の投稿を返す（APIは人気順でソート済み）
-    return filtered.length > 0 ? filtered.slice(0, 15) : posts.slice(0, 15);
-  }
-
-  async getTrendPosts(): Promise<{
-    posts: ZennPost[];
-    source: 'api' | 'cache' | 'extended-cache' | 'mock';
-    cacheAge?: number;
-  }> {
-    // 1. メイン: API経由でデータ取得を試行
+  /**
+   * Convex からの取得を共通化
+   */
+  private async fetchFromConvex(filter: TrendsFilter): Promise<ZennArticle[]> {
     try {
-      const posts = await this.fetchAllTrends();
-      const filtered = this.filterYesterdayPosts(posts);
-      this.setCacheData(filtered);
-      return { posts: filtered, source: 'api' };
+      const client = this.ensureClient();
+      const articles = await client.action(api.trends.getTrends, filter);
+      return articles as ZennArticle[];
     } catch (error) {
-      console.warn('API fetch failed, checking cache:', error);
+      console.error("Convex からのデータ取得に失敗しました", error);
+      throw new Error("Convex からトレンドデータを取得できませんでした");
     }
-
-    // 2. フォールバック1: 1時間以内のキャッシュデータ
-    const cache = this.getCacheData();
-    if (cache && this.isCacheValid(cache)) {
-      const cacheAge = Date.now() - new Date(cache.timestamp).getTime();
-      return {
-        posts: cache.posts,
-        source: 'cache',
-        cacheAge: Math.floor(cacheAge / 60000) // 分単位
-      };
-    }
-
-    // 3. フォールバック2: 24時間以内のキャッシュデータ（警告表示付き）
-    if (cache && this.isCacheValid(cache, EXTENDED_CACHE_DURATION)) {
-      const cacheAge = Date.now() - new Date(cache.timestamp).getTime();
-      return {
-        posts: cache.posts,
-        source: 'extended-cache',
-        cacheAge: Math.floor(cacheAge / 3600000) // 時間単位
-      };
-    }
-
-    // 4. フォールバック3: モックデータ（開発環境のみ）
-    if (import.meta.env.DEV) {
-      console.warn('Using mock data as fallback');
-      return { posts: mockPosts, source: 'mock' };
-    }
-
-    // 5. すべて失敗した場合
-    throw new Error('すべてのデータソースからの取得に失敗しました');
   }
 
-  clearCache(): void {
-    localStorage.removeItem(CACHE_KEY);
+  private ensureClient(): ConvexHttpClient {
+    if (this.client) {
+      return this.client;
+    }
+
+    if (this.initializationError) {
+      throw this.initializationError;
+    }
+
+    throw new Error("Convex クライアントが初期化されていません");
   }
 }
-
-export const zennService = new ZennService();

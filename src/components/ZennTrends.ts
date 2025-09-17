@@ -1,7 +1,7 @@
-import { ConvexZennService } from '../services/convexZennService';
+import { ZennService } from '../services/zennService';
+import { ZennArticle, ZennTrendsState } from '../types/zenn';
 
-const convexZennService = new ConvexZennService();
-import { ZennPost, ZennArticle, ZennTrendsState } from '../types/zenn';
+const zennService = new ZennService();
 
 export class ZennTrends {
   private state: ZennTrendsState = {
@@ -172,7 +172,7 @@ export class ZennTrends {
 
     try {
       // Convex版のサービスを使用
-      const articles = await convexZennService.getTrendArticles();
+      const articles = await zennService.getTrendArticles();
 
       this.state.articles = articles;
       this.state.loading = { isLoading: false };
@@ -201,7 +201,7 @@ export class ZennTrends {
 
     try {
       // Convexの手動更新機能を使用
-      const articles = await convexZennService.refreshTrends();
+      const articles = await zennService.refreshTrends();
 
       this.state.articles = articles;
       this.state.loading = { isLoading: false };
