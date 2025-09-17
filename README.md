@@ -1,6 +1,6 @@
 # Astute Crow
 
-TypeScript + Vite を使用したモダンな Web アプリケーションです。現在は Hello World をベースとしつつ、Zenn トレンド表示機能の開発を進めています。Convex をバックエンドとして導入し、トレンドデータのキャッシュや永続化に対応しました。
+TypeScript + Vite を使用したモダンな Web アプリケーションです。現在は Hello World をベースとしつつ、Zenn トレンド記事表示機能の開発を進めています。Convex をバックエンドとして導入し、記事データのキャッシュや永続化に対応しました。
 
 ## 🚀 特徴
 
@@ -8,7 +8,7 @@ TypeScript + Vite を使用したモダンな Web アプリケーションです
 - 🎯 **TypeScript**: 型安全な JavaScript 開発
 - 🎨 **モダンCSS**: CSS Variables、Grid、Flexbox を使用したレスポンシブデザイン
 - 🌙 **ダークテーマ**: 目に優しいダークモードUI
-- 📈 **Convex バックエンド連携**: Convex によるトレンドデータの取得・キャッシュ・永続化
+- 📈 **Convex バックエンド連携**: Convex による記事トレンドデータの取得・キャッシュ・永続化
 - 🌐 **フォールバックAPI**: Convex が利用できない環境でも Zenn 非公式 API 経由でデータを取得
 
 ## 📋 必要な環境
@@ -48,7 +48,7 @@ npm run convex:dev
 
 ## 📱 使用方法
 
-開発サーバーを起動すると、自動的にブラウザが開きます。ポートが使用中の場合は、利用可能なポート（通常は3001など）で起動します。Convex が利用可能であれば Convex 経由で、利用できない場合は自動的に Zenn API にフォールバックします。
+開発サーバーを起動すると、自動的にブラウザが開きます。ポートが使用中の場合は、利用可能なポート（通常は3001など）で起動します。Convex が利用可能であれば Convex 経由で記事データを取得し、利用できない場合は自動的に Zenn API にフォールバックします。
 
 ## 🔧 利用可能なコマンド
 
@@ -95,10 +95,11 @@ npm run convex:dev
 - TypeScript + Vite の開発環境
 - ダークテーマ対応のモダンUI
 - Convex バックエンドとの統合とフォールバックロジック
+- Zenn 記事トレンド表示機能（Tech/Idea記事対応）
+- Convex による記事データのキャッシュと永続化
 
 ### 開発中
-- Zenn トレンド表示機能
-- Zenn API からの記事情報取得
+- UI/UX の改善とレスポンシブ対応の強化
 
 ### 今後の予定
 - Qiita トレンド表示機能
@@ -118,8 +119,9 @@ npm run convex:dev
 
 本プロジェクトでは以下の非公式APIを使用しています：
 - **Zenn Trend API** - [kaisugi/zenn-trend-api](https://github.com/kaisugi/zenn-trend-api)
-  - Zennのトレンド記事をJSON形式で取得する非公式API
-  - エンドポイント: `https://zenn-api.vercel.app/api/`
+  - Zennのトレンド記事（Tech/Idea）をJSON形式で取得する非公式API
+  - 技術記事エンドポイント: `https://zenn-api.vercel.app/api/trendTech`
+  - アイデア記事エンドポイント: `https://zenn-api.vercel.app/api/trendIdea`
 
 ## 📄 ライセンス
 
