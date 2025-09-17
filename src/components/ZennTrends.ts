@@ -1,4 +1,6 @@
-import { zennService } from '../services/zennService';
+import { ConvexZennService } from '../services/convexZennService';
+
+const convexZennService = new ConvexZennService();
 import { ZennPost, ZennArticle, ZennBook, ZennTrendsState } from '../types/zenn';
 
 export class ZennTrends {
@@ -154,24 +156,6 @@ export class ZennTrends {
     `;
   }
 
-  private createCacheWarning(source: string, cacheAge?: number): string {
-    let warningMessage = '';
-
-    if (source === 'cache' && cacheAge !== undefined) {
-      warningMessage = `最新データの取得に失敗したため、キャッシュを表示しています（${cacheAge}分前のデータ）`;
-    } else if (source === 'extended-cache' && cacheAge !== undefined) {
-      warningMessage = `最新データの取得に失敗したため、古いキャッシュを表示しています（${cacheAge}時間前のデータ）`;
-    } else if (source === 'mock') {
-      warningMessage = 'サンプルデータを表示しています（開発環境）';
-    }
-
-    return warningMessage ? `
-      <div class="cache-warning">
-        <span class="warning-icon">ℹ️</span>
-        <span class="warning-text">${warningMessage}</span>
-      </div>
-    ` : '';
-  }
 
   private escapeHtml(text: string): string {
     const div = document.createElement('div');
@@ -210,22 +194,14 @@ export class ZennTrends {
     this.render();
 
     try {
-      const result = await zennService.getTrendPosts();
+      // Convex版のサービスを使用
+      const posts = await convexZennService.getTrendPosts();
 
-      this.state.posts = result.posts;
+      this.state.posts = posts;
       this.state.loading = { isLoading: false };
       this.state.lastUpdated = new Date().toLocaleString('ja-JP');
 
-      // キャッシュ使用時の警告表示
-      if (result.source !== 'api') {
-        const warningHtml = this.createCacheWarning(result.source, result.cacheAge);
-        setTimeout(() => {
-          const section = this.container.querySelector('.zenn-trends-section');
-          if (section && warningHtml) {
-            section.insertAdjacentHTML('afterbegin', warningHtml);
-          }
-        }, 100);
-      }
+      // Convex版では常にリアルタイムデータを取得するため、キャッシュ警告は不要
 
     } catch (error) {
       console.error('Failed to load trends:', error);
@@ -233,7 +209,7 @@ export class ZennTrends {
       this.state.error = {
         type: 'error',
         message: 'Zennのトレンド記事を取得できませんでした',
-        subMessage: 'ネットワーク接続を確認してください',
+        subMessage: 'Convexサーバーとの接続を確認してください',
         showRetryButton: true
       };
     }
@@ -242,6 +218,29 @@ export class ZennTrends {
   }
 
   async refresh(): Promise<void> {
-    await this.loadTrends();
+    this.state.loading = { isLoading: true, message: 'データを更新中...' };
+    this.state.error = null;
+    this.render();
+
+    try {
+      // Convexの手動更新機能を使用
+      const posts = await convexZennService.refreshTrends();
+
+      this.state.posts = posts;
+      this.state.loading = { isLoading: false };
+      this.state.lastUpdated = new Date().toLocaleString('ja-JP');
+
+    } catch (error) {
+      console.error('Failed to refresh trends:', error);
+      this.state.loading = { isLoading: false };
+      this.state.error = {
+        type: 'error',
+        message: 'データの更新に失敗しました',
+        subMessage: 'Convexサーバーとの接続を確認してください',
+        showRetryButton: true
+      };
+    }
+
+    this.render();
   }
 }
