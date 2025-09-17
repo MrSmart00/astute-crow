@@ -213,7 +213,7 @@ class ZennService {
     }
 
     // 4. フォールバック3: モックデータ（開発環境のみ）
-    if (typeof process !== 'undefined' && process.env?.NODE_ENV === 'development') {
+    if (import.meta.env.DEV) {
       console.warn('Using mock data as fallback');
       return { posts: mockPosts, source: 'mock' };
     }
