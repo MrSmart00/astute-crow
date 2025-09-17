@@ -1,4 +1,7 @@
-# Astute Crow
+<p align="center">
+  <img width="500" alt="ChatGPT Image 2025年9月18日 01_00_12" src="https://github.com/user-attachments/assets/8520303b-c4c9-4748-a921-e15f58c6d1dc" />
+</p>
+
 
 TypeScript + Vite を使用したモダンな Web アプリケーションです。現在は Hello World をベースとしつつ、Zenn トレンド記事表示機能の開発を進めています。Convex をバックエンドとして導入し、記事データのキャッシュや永続化に対応しました。
 
