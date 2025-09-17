@@ -124,6 +124,9 @@ dist/
 # Documentation folder
 .docs/
 
+# Convex generated files
+convex/_generated/
+
 # OS generated files
 .DS_Store
 .DS_Store?
