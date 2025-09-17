@@ -5,21 +5,19 @@ const CACHE_DURATION = 5 * 60 * 1000; // 5分
 
 type TrendsArgs = {
   forceRefresh?: boolean;
-  postType?: "Article" | "Book";
   articleType?: "tech" | "idea";
 };
 
 type TrendsResult = Promise<any[]>;
 
 const getTrendsHandler = async (ctx: ActionCtx, args: TrendsArgs): TrendsResult => {
-  const cacheKey = `trends_${args.postType || "all"}_${args.articleType || "all"}`;
+  const cacheKey = `trends_articles_${args.articleType || "all"}`;
   const now = Date.now();
 
   if (!args.forceRefresh) {
     const cacheInfo = await ctx.runQuery("zennData:getCacheInfo" as any, { cacheKey });
     if (cacheInfo && cacheInfo.isValid && cacheInfo.expiresAt > now) {
       return await ctx.runQuery("zennData:getTrendPosts" as any, {
-        postType: args.postType,
         articleType: args.articleType,
       });
     }
@@ -35,7 +33,6 @@ const getTrendsHandler = async (ctx: ActionCtx, args: TrendsArgs): TrendsResult 
   });
 
   return await ctx.runQuery("zennData:getTrendPosts" as any, {
-    postType: args.postType,
     articleType: args.articleType,
   });
 };
@@ -44,7 +41,6 @@ const getTrendsHandler = async (ctx: ActionCtx, args: TrendsArgs): TrendsResult 
 export const getTrends = action({
   args: {
     forceRefresh: v.optional(v.boolean()),
-    postType: v.optional(v.union(v.literal("Article"), v.literal("Book"))),
     articleType: v.optional(v.union(v.literal("tech"), v.literal("idea"))),
   },
   handler: getTrendsHandler,
@@ -72,9 +68,6 @@ export const syncPostsToDatabase = mutation({
         emoji: post.emoji,
         postType: post.postType,
         articleType: post.articleType,
-        price: post.price,
-        isFree: post.isFree,
-        summary: post.summary,
         userId,
       });
     }
@@ -94,7 +87,6 @@ export const getTechTrends = query({
   args: {},
   handler: async (ctx) => {
     return await ctx.runQuery("zennData:getTrendPosts" as any, {
-      postType: "Article",
       articleType: "tech",
     });
   },
@@ -105,18 +97,7 @@ export const getIdeaTrends = query({
   args: {},
   handler: async (ctx) => {
     return await ctx.runQuery("zennData:getTrendPosts" as any, {
-      postType: "Article",
       articleType: "idea",
-    });
-  },
-});
-
-// 本のトレンドを取得
-export const getBookTrends = query({
-  args: {},
-  handler: async (ctx) => {
-    return await ctx.runQuery("zennData:getTrendPosts" as any, {
-      postType: "Book",
     });
   },
 });

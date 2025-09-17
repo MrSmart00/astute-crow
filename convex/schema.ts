@@ -9,7 +9,7 @@ export default defineSchema({
     avatarSmallUrl: v.string(),
   }).index("by_username", ["username"]),
 
-  // Zenn記事・本の投稿データ
+  // Zenn記事データ
   zennPosts: defineTable({
     externalId: v.string(), // ZennのAPI上のID
     title: v.string(),
@@ -17,15 +17,10 @@ export default defineSchema({
     likedCount: v.number(),
     publishedAt: v.string(),
     emoji: v.string(),
-    postType: v.union(v.literal("Article"), v.literal("Book")),
+    postType: v.literal("Article"),
 
-    // 記事の場合
-    articleType: v.optional(v.union(v.literal("tech"), v.literal("idea"))),
-
-    // 本の場合
-    price: v.optional(v.number()),
-    isFree: v.optional(v.boolean()),
-    summary: v.optional(v.string()),
+    // 記事のタイプ
+    articleType: v.union(v.literal("tech"), v.literal("idea")),
 
     // ユーザー情報への参照
     userId: v.id("zennUsers"),
@@ -35,7 +30,7 @@ export default defineSchema({
     updatedAt: v.number(),
   })
     .index("by_external_id", ["externalId"])
-    .index("by_post_type", ["postType"])
+    .index("by_article_type", ["articleType"])
     .index("by_likes", ["likedCount"])
     .index("by_published", ["publishedAt"]),
 

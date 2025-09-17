@@ -29,7 +29,7 @@ export const upsertUser = mutation({
   },
 });
 
-// 投稿を作成または更新
+// 記事を作成または更新
 export const upsertPost = mutation({
   args: {
     externalId: v.string(),
@@ -38,11 +38,8 @@ export const upsertPost = mutation({
     likedCount: v.number(),
     publishedAt: v.string(),
     emoji: v.string(),
-    postType: v.union(v.literal("Article"), v.literal("Book")),
-    articleType: v.optional(v.union(v.literal("tech"), v.literal("idea"))),
-    price: v.optional(v.number()),
-    isFree: v.optional(v.boolean()),
-    summary: v.optional(v.string()),
+    postType: v.literal("Article"),
+    articleType: v.union(v.literal("tech"), v.literal("idea")),
     userId: v.id("zennUsers"),
   },
   handler: async (ctx, args) => {
@@ -72,11 +69,10 @@ export const upsertPost = mutation({
   },
 });
 
-// トレンド投稿を取得（ライク数順）
+// トレンド記事を取得（ライク数順）
 export const getTrendPosts = query({
   args: {
     limit: v.optional(v.number()),
-    postType: v.optional(v.union(v.literal("Article"), v.literal("Book"))),
     articleType: v.optional(v.union(v.literal("tech"), v.literal("idea"))),
   },
   handler: async (ctx, args) => {
@@ -84,12 +80,7 @@ export const getTrendPosts = query({
 
     let postsQuery = ctx.db.query("zennPosts").withIndex("by_likes");
 
-    // 投稿タイプでフィルタ
-    if (args.postType) {
-      postsQuery = postsQuery.filter((q) => q.eq(q.field("postType"), args.postType));
-    }
-
-    // 記事タイプでフィルタ（記事の場合）
+    // 記事タイプでフィルタ
     if (args.articleType) {
       postsQuery = postsQuery.filter((q) => q.eq(q.field("articleType"), args.articleType));
     }
@@ -109,9 +100,6 @@ export const getTrendPosts = query({
           emoji: post.emoji,
           postType: post.postType,
           articleType: post.articleType,
-          price: post.price,
-          isFree: post.isFree,
-          summary: post.summary,
           user: user ? {
             username: user.username,
             name: user.name,
