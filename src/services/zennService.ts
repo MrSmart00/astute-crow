@@ -73,7 +73,7 @@ const mockPosts: ZennPost[] = [
 
 class ZennService {
   private async fetchTechArticles(): Promise<ZennArticle[]> {
-    const response = await fetch('/api/zenn/trendTech');
+    const response = await fetch('https://zenn-api.vercel.app/api/trendTech');
     if (!response.ok) {
       throw new Error(`Tech API request failed: ${response.status}`);
     }
@@ -86,7 +86,7 @@ class ZennService {
   }
 
   private async fetchIdeaArticles(): Promise<ZennArticle[]> {
-    const response = await fetch('/api/zenn/trendIdea');
+    const response = await fetch('https://zenn-api.vercel.app/api/trendIdea');
     if (!response.ok) {
       throw new Error(`Idea API request failed: ${response.status}`);
     }
@@ -99,7 +99,7 @@ class ZennService {
   }
 
   private async fetchBooks(): Promise<ZennBook[]> {
-    const response = await fetch('/api/zenn/trendBook');
+    const response = await fetch('https://zenn-api.vercel.app/api/trendBook');
     if (!response.ok) {
       throw new Error(`Book API request failed: ${response.status}`);
     }
