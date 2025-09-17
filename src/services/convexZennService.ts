@@ -1,10 +1,9 @@
 import { ConvexHttpClient } from "convex/browser";
 import { api } from "../../convex/_generated/api";
-import { ZennPost } from "../types/zenn";
+import { ZennArticle } from "../types/zenn";
 
 type TrendsFilter = {
   forceRefresh?: boolean;
-  postType?: "Article" | "Book";
   articleType?: "tech" | "idea";
 };
 
@@ -33,41 +32,34 @@ export class ConvexZennService {
   }
 
   /**
-   * すべてのトレンド投稿を取得
+   * すべてのトレンド記事を取得
    */
-  async getTrendPosts(forceRefresh: boolean = false): Promise<ZennPost[]> {
+  async getTrendArticles(forceRefresh: boolean = false): Promise<ZennArticle[]> {
     return this.fetchFromConvex({ forceRefresh });
   }
 
   /**
    * 技術記事のトレンドを取得
    */
-  async getTechTrends(): Promise<ZennPost[]> {
-    return this.fetchFromConvex({ postType: "Article", articleType: "tech" });
+  async getTechTrends(): Promise<ZennArticle[]> {
+    return this.fetchFromConvex({ articleType: "tech" });
   }
 
   /**
    * アイデア記事のトレンドを取得
    */
-  async getIdeaTrends(): Promise<ZennPost[]> {
-    return this.fetchFromConvex({ postType: "Article", articleType: "idea" });
-  }
-
-  /**
-   * 本のトレンドを取得
-   */
-  async getBookTrends(): Promise<ZennPost[]> {
-    return this.fetchFromConvex({ postType: "Book" });
+  async getIdeaTrends(): Promise<ZennArticle[]> {
+    return this.fetchFromConvex({ articleType: "idea" });
   }
 
   /**
    * 手動でデータを更新
    */
-  async refreshTrends(): Promise<ZennPost[]> {
+  async refreshTrends(): Promise<ZennArticle[]> {
     try {
       const client = this.ensureClient();
-      const posts = await client.action(api.trends.refreshTrends, {});
-      return posts as ZennPost[];
+      const articles = await client.action(api.trends.refreshTrends, {});
+      return articles as ZennArticle[];
     } catch (error) {
       console.error("Convex refreshTrends アクションが失敗しました", error);
       throw new Error("Convex からトレンドを更新できませんでした");
@@ -91,11 +83,11 @@ export class ConvexZennService {
   /**
    * Convex からの取得を共通化
    */
-  private async fetchFromConvex(filter: TrendsFilter): Promise<ZennPost[]> {
+  private async fetchFromConvex(filter: TrendsFilter): Promise<ZennArticle[]> {
     try {
       const client = this.ensureClient();
-      const posts = await client.action(api.trends.getTrends, filter);
-      return posts as ZennPost[];
+      const articles = await client.action(api.trends.getTrends, filter);
+      return articles as ZennArticle[];
     } catch (error) {
       console.error("Convex からのデータ取得に失敗しました", error);
       throw new Error("Convex からトレンドデータを取得できませんでした");

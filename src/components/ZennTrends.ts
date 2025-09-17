@@ -1,11 +1,11 @@
 import { ConvexZennService } from '../services/convexZennService';
 
 const convexZennService = new ConvexZennService();
-import { ZennPost, ZennArticle, ZennBook, ZennTrendsState } from '../types/zenn';
+import { ZennPost, ZennArticle, ZennTrendsState } from '../types/zenn';
 
 export class ZennTrends {
   private state: ZennTrendsState = {
-    posts: [],
+    articles: [],
     loading: { isLoading: false },
     error: null,
     lastUpdated: null
@@ -57,68 +57,45 @@ export class ZennTrends {
     `;
   }
 
-  private createPostCard(post: ZennPost): string {
-    const isBook = post.postType === 'Book';
-    const url = isBook
-      ? `https://zenn.dev/${post.user.username}/books/${post.slug}`
-      : `https://zenn.dev/${post.user.username}/articles/${post.slug}`;
-    const publishedDate = new Date(post.publishedAt).toLocaleDateString('ja-JP');
+  private createArticleCard(article: ZennArticle): string {
+    const url = `https://zenn.dev/${article.user.username}/articles/${article.slug}`;
+    const publishedDate = new Date(article.publishedAt).toLocaleDateString('ja-JP');
 
     // カテゴリバッジ
-    const categoryBadge = this.getCategoryBadge(post);
-
-    // 価格表示（Bookの場合）
-    const priceInfo = isBook ? this.getPriceInfo(post as ZennBook) : '';
+    const categoryBadge = this.getCategoryBadge(article);
 
     return `
-      <a href="${url}" target="_blank" rel="noopener noreferrer" class="zenn-card ${post.postType.toLowerCase()}">
+      <a href="${url}" target="_blank" rel="noopener noreferrer" class="zenn-card article">
         <div class="zenn-card-header">
-          <div class="zenn-emoji">${post.emoji}</div>
-          <h3 class="zenn-title">${this.escapeHtml(post.title)}</h3>
+          <div class="zenn-emoji">${article.emoji}</div>
+          <h3 class="zenn-title">${this.escapeHtml(article.title)}</h3>
         </div>
         <div class="zenn-card-body">
           <div class="zenn-meta">
             <span class="published-date">${publishedDate}</span>
-            ${priceInfo}
           </div>
-          ${isBook && (post as ZennBook).summary ? `<p class="book-summary">${this.escapeHtml((post as ZennBook).summary)}</p>` : ''}
         </div>
         <div class="zenn-card-footer">
           <div class="zenn-author">
-            <img src="${post.user.avatarSmallUrl}" alt="${post.user.name}" class="author-avatar">
-            <span class="author-name">${this.escapeHtml(post.user.name || post.user.username)}</span>
+            <img src="${article.user.avatarSmallUrl}" alt="${article.user.name}" class="author-avatar">
+            <span class="author-name">${this.escapeHtml(article.user.name || article.user.username)}</span>
           </div>
           ${categoryBadge}
           <div class="zenn-likes">
             <span class="like-icon">❤️</span>
-            <span class="like-count">${post.likedCount}</span>
+            <span class="like-count">${article.likedCount}</span>
           </div>
         </div>
       </a>
     `;
   }
 
-  private getCategoryBadge(post: ZennPost): string {
-    if (post.postType === 'Article') {
-      const article = post as ZennArticle;
-      const badgeClass = article.articleType === 'tech' ? 'tech' : 'idea';
-      const badgeText = article.articleType === 'tech' ? 'Tech' : 'Idea';
-      return `<span class="category-badge ${badgeClass}">${badgeText}</span>`;
-    } else {
-      const book = post as ZennBook;
-      const badgeText = book.isFree ? 'Free Book' : 'Book';
-      const badgeClass = book.isFree ? 'free-book' : 'book';
-      return `<span class="category-badge ${badgeClass}">${badgeText}</span>`;
-    }
+  private getCategoryBadge(article: ZennArticle): string {
+    const badgeClass = article.articleType === 'tech' ? 'tech' : 'idea';
+    const badgeText = article.articleType === 'tech' ? 'Tech' : 'Idea';
+    return `<span class="category-badge ${badgeClass}">${badgeText}</span>`;
   }
 
-  private getPriceInfo(book: ZennBook): string {
-    if (book.isFree) {
-      return '<span class="price-info free">無料</span>';
-    } else {
-      return `<span class="price-info paid">¥${book.price}</span>`;
-    }
-  }
 
   private createErrorState(message: string, subMessage?: string, showRetry: boolean = true): string {
     return `
@@ -138,7 +115,7 @@ export class ZennTrends {
   }
 
   private createSuccessState(): string {
-    const cardsHtml = this.state.posts.map(post => this.createPostCard(post)).join('');
+    const cardsHtml = this.state.articles.map(article => this.createArticleCard(article)).join('');
 
     let statusMessage = '';
     if (this.state.lastUpdated) {
@@ -147,7 +124,7 @@ export class ZennTrends {
 
     return `
       <div class="zenn-trends-section">
-        <h2 class="section-title">📈 Zennトレンド（記事・本）</h2>
+        <h2 class="section-title">📈 Zennトレンド記事</h2>
         ${statusMessage}
         <div class="zenn-cards-grid">
           ${cardsHtml}
@@ -195,9 +172,9 @@ export class ZennTrends {
 
     try {
       // Convex版のサービスを使用
-      const posts = await convexZennService.getTrendPosts();
+      const articles = await convexZennService.getTrendArticles();
 
-      this.state.posts = posts;
+      this.state.articles = articles;
       this.state.loading = { isLoading: false };
       this.state.lastUpdated = new Date().toLocaleString('ja-JP');
 
@@ -224,9 +201,9 @@ export class ZennTrends {
 
     try {
       // Convexの手動更新機能を使用
-      const posts = await convexZennService.refreshTrends();
+      const articles = await convexZennService.refreshTrends();
 
-      this.state.posts = posts;
+      this.state.articles = articles;
       this.state.loading = { isLoading: false };
       this.state.lastUpdated = new Date().toLocaleString('ja-JP');
 
