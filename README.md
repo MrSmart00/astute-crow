@@ -8,7 +8,7 @@ TypeScript + Vite を使用したモダンな Web アプリケーションです
 - 🎯 **TypeScript**: 型安全な JavaScript 開発
 - 🎨 **モダンCSS**: CSS Variables、Grid、Flexbox を使用したレスポンシブデザイン
 - 🌙 **ダークテーマ**: 目に優しいダークモードUI
-- 📈 **Zennトレンド表示**: Zennの人気記事情報を取得・表示（開発中）
+- 📈 **Zennトレンド表示**: [非公式API](https://github.com/kaisugi/zenn-trend-api)を利用したZennの人気記事情報の取得・表示（開発中）
 
 ## 📋 必要な環境
 
@@ -84,6 +84,13 @@ npm run dev
 - **Vite 7.1+**: 高速なバンドラーと開発ツール
 - **ES2020**: モダンな JavaScript 機能
 - **CSS3**: フレキシブルレイアウトとアニメーション
+
+## 🔗 外部API
+
+本プロジェクトでは以下の非公式APIを使用しています：
+- **Zenn Trend API** - [kaisugi/zenn-trend-api](https://github.com/kaisugi/zenn-trend-api)
+  - Zennのトレンド記事をJSON形式で取得する非公式API
+  - エンドポイント: `https://zenn-api.vercel.app/api/`
 
 ## 📄 ライセンス
 
