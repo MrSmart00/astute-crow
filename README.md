@@ -3,7 +3,7 @@
 </p>
 
 
-TypeScript + Vite を使用したモダンな Web アプリケーションです。現在は Hello World をベースとしつつ、Zenn トレンド記事表示機能の開発を進めています。Convex をバックエンドとして導入し、記事データのキャッシュや永続化に対応しました。
+TypeScript + Vite を使用したモダンな Web アプリケーションです。Zenn のトレンド記事を表示し、リアルタイムで更新される技術記事とアイデア記事を閲覧できます。Convex をバックエンドとして使用し、記事データのキャッシュや永続化を実現しています。
 
 ## 🚀 特徴
 
@@ -72,8 +72,7 @@ npm run convex:dev
 │   ├── components/
 │   │   └── ZennTrends.ts    # Zennトレンド表示コンポーネント
 │   ├── services/
-│   │   ├── convexZennService.ts # Convex 連携とフォールバックロジック
-│   │   └── zennService.ts       # フォールバックAPI用サービス（開発検証用）
+│   │   └── zennService.ts   # Convex統合とフォールバック機能
 │   └── types/
 │       └── zenn.ts          # Zenn関連の型定義
 ├── convex/                  # Convex 関連のサーバーコード
@@ -81,8 +80,6 @@ npm run convex:dev
 │   ├── trends.ts            # トレンド取得アクション/クエリ
 │   ├── zennApi.ts           # Zenn 非公式API呼び出しアクション
 │   └── zennData.ts          # DB とのやり取り（クエリ/ミューテーション）
-├── backend/                 # バックエンド用ディレクトリ（将来の拡張予定）
-├── frontend/                # フロントエンド用ディレクトリ（将来の拡張予定）
 ├── index.html               # HTMLテンプレート
 ├── tsconfig.json            # TypeScript設定
 ├── vite.config.ts           # Vite設定
@@ -94,12 +91,12 @@ npm run convex:dev
 ## 🚧 開発状況
 
 ### 完成済み
-- Hello World アプリケーションのベース
 - TypeScript + Vite の開発環境
 - ダークテーマ対応のモダンUI
 - Convex バックエンドとの統合とフォールバックロジック
 - Zenn 記事トレンド表示機能（Tech/Idea記事対応）
 - Convex による記事データのキャッシュと永続化
+- リアルタイム記事表示とスケルトン UI
 
 ### 開発中
 - UI/UX の改善とレスポンシブ対応の強化
