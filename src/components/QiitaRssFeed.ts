@@ -65,7 +65,7 @@ export class QiitaRssFeed {
     const displayDescription = article.metadata?.ogp?.description || article.description;
 
     return `
-      <article class="article-card" data-article-id="${this.escapeHtml(article.id)}">
+      <article class="article-card" data-article-id="${this.escapeHtml(article.id)}" data-site="qiita">
         <a href="${this.escapeHtml(article.link)}" target="_blank" rel="noopener noreferrer" class="article-link">
           <div class="article-content">
             <h3 class="article-title">${this.escapeHtml(displayTitle)}</h3>

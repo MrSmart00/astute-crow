@@ -6,6 +6,10 @@
   --text-muted: #888;
   --border-color: #404040;
   --card-background: #1a1a1a;
+
+  /* サイト別テーマカラー */
+  --qiita-color: #55c500;
+  --zenn-color: #3ea8ff;
 }
 
 * {
@@ -573,4 +577,33 @@ body {
   .book-summary {
     font-size: 0.8rem;
   }
+}
+
+/* サイト別のテーマカラー適用 */
+/* Qiitaカード用スタイル */
+.article-card[data-site="qiita"] {
+  border-color: rgba(85, 197, 0, 0.2);
+}
+
+.article-card[data-site="qiita"]:hover {
+  border-color: var(--qiita-color);
+  box-shadow: 0 8px 25px rgba(85, 197, 0, 0.15);
+}
+
+.article-card[data-site="qiita"] .article-site {
+  color: var(--qiita-color);
+}
+
+/* Zennカード用スタイル */
+.article-card[data-site="zenn"] {
+  border-color: rgba(62, 168, 255, 0.2);
+}
+
+.article-card[data-site="zenn"]:hover {
+  border-color: var(--zenn-color);
+  box-shadow: 0 8px 25px rgba(62, 168, 255, 0.15);
+}
+
+.article-card[data-site="zenn"] .article-site {
+  color: var(--zenn-color);
 }

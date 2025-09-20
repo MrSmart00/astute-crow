@@ -60,7 +60,7 @@ export class ZennRssFeed {
     const avatarUrl = article.avatarUrl;
 
     return `
-      <article class="article-card" data-article-id="${this.escapeHtml(article.id)}">
+      <article class="article-card" data-article-id="${this.escapeHtml(article.id)}" data-site="zenn">
         <a href="${this.escapeHtml(article.link)}" target="_blank" rel="noopener noreferrer" class="article-link">
           <div class="article-content">
             <h3 class="article-title">${this.escapeHtml(article.title)}</h3>
