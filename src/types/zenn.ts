@@ -46,3 +46,32 @@ export interface ZennTrendsState {
   error: ErrorState | null;
   lastUpdated: string | null;
 }
+
+// RSS記事の型定義
+export interface ZennRssArticle {
+  id: string;
+  title: string;
+  link: string;
+  description: string;
+  author: string;
+  pubDate: string;
+  ogImage?: string;
+  avatarUrl?: string;
+  siteName: string;
+  thumbnail?: string;
+}
+
+// RSS記事レスポンスの型
+export interface ZennRssResponse {
+  articles: ZennRssArticle[];
+  totalCount: number;
+  fetchedAt: string;
+}
+
+// RSS記事用の状態管理
+export interface ZennRssState {
+  articles: ZennRssArticle[];
+  loading: LoadingState;
+  error: ErrorState | null;
+  lastUpdated: string | null;
+}

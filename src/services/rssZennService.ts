@@ -1,0 +1,224 @@
+import { ConvexHttpClient } from 'convex/browser';
+import { ZennRssResponse, ZennRssArticle } from '../types/zenn';
+
+interface CacheData {
+  articles: ZennRssArticle[];
+  timestamp: string;
+  expiresIn: number;
+}
+
+class RssZennService {
+  private convex: ConvexHttpClient;
+  private cache: Map<string, CacheData> = new Map();
+  private readonly CACHE_DURATION = 5 * 60 * 1000; // 5分
+  private readonly CACHE_KEY = 'rss-articles';
+
+  constructor() {
+    // Convex URL を環境変数から取得（本番環境では適切に設定）
+    const convexUrl = import.meta.env.VITE_CONVEX_URL || process.env.CONVEX_URL;
+    if (!convexUrl) {
+      throw new Error('Convex URL is not configured');
+    }
+    this.convex = new ConvexHttpClient(convexUrl);
+  }
+
+  /**
+   * RSS記事を取得（メタデータ付き）
+   */
+  async fetchRssArticles(useCache = true): Promise<ZennRssResponse> {
+    // キャッシュチェック
+    if (useCache) {
+      const cachedData = this.getCachedData();
+      if (cachedData) {
+        console.log('RSS記事をキャッシュから取得');
+        return {
+          articles: cachedData.articles,
+          totalCount: cachedData.articles.length,
+          fetchedAt: cachedData.timestamp,
+        };
+      }
+    }
+
+    try {
+      console.log('RSS記事をAPI経由で取得開始');
+
+      const response = await this.convex.action('rssZennApi:fetchRssArticles', {});
+
+      if (!response || !Array.isArray(response.articles)) {
+        throw new Error('Invalid response format from API');
+      }
+
+      // レスポンスデータを変換
+      const articles: ZennRssArticle[] = response.articles.map((article: any) => ({
+        id: article.id,
+        title: article.title,
+        link: article.link,
+        description: article.description,
+        author: article.author,
+        pubDate: article.pubDate,
+        ogImage: article.ogImage,
+        avatarUrl: article.avatarUrl,
+        siteName: article.siteName,
+        thumbnail: article.thumbnail,
+      }));
+
+      const result: ZennRssResponse = {
+        articles,
+        totalCount: response.totalCount || articles.length,
+        fetchedAt: response.fetchedAt || new Date().toISOString(),
+      };
+
+      // キャッシュに保存
+      this.setCacheData(articles, result.fetchedAt);
+
+      console.log(`RSS記事を取得完了: ${articles.length}件`);
+      return result;
+
+    } catch (error) {
+      console.error('RSS記事の取得に失敗:', error);
+      throw new Error('RSS記事の取得に失敗しました。ネットワーク接続を確認してください。');
+    }
+  }
+
+  /**
+   * RSS記事を高速取得（メタデータなし）
+   */
+  async fetchRssArticlesRaw(): Promise<ZennRssResponse> {
+    try {
+      console.log('RSS記事を高速取得開始');
+
+      const response = await this.convex.action('rssZennApi:fetchRssArticlesRaw', {});
+
+      if (!response || !Array.isArray(response.articles)) {
+        throw new Error('Invalid response format from API');
+      }
+
+      const articles: ZennRssArticle[] = response.articles.map((article: any) => ({
+        id: article.id,
+        title: article.title,
+        link: article.link,
+        description: article.description,
+        author: article.author,
+        pubDate: article.pubDate,
+        ogImage: article.ogImage,
+        avatarUrl: article.avatarUrl,
+        siteName: article.siteName,
+        thumbnail: article.thumbnail,
+      }));
+
+      const result: ZennRssResponse = {
+        articles,
+        totalCount: response.totalCount || articles.length,
+        fetchedAt: response.fetchedAt || new Date().toISOString(),
+      };
+
+      console.log(`RSS記事を高速取得完了: ${articles.length}件`);
+      return result;
+
+    } catch (error) {
+      console.error('RSS記事の高速取得に失敗:', error);
+      throw new Error('RSS記事の取得に失敗しました。');
+    }
+  }
+
+  /**
+   * キャッシュから試行
+   */
+  async fetchWithFallback(): Promise<ZennRssResponse> {
+    try {
+      // まずメタデータ付きで取得を試行
+      return await this.fetchRssArticles(true);
+    } catch (error) {
+      console.warn('メタデータ付き取得に失敗、高速取得を試行:', error);
+
+      try {
+        // 高速取得を試行
+        return await this.fetchRssArticlesRaw();
+      } catch (fallbackError) {
+        console.error('高速取得も失敗:', fallbackError);
+
+        // 最後にキャッシュから取得を試行
+        const cachedData = this.getCachedData(false); // 期限切れでも取得
+        if (cachedData) {
+          console.log('期限切れキャッシュから取得');
+          return {
+            articles: cachedData.articles,
+            totalCount: cachedData.articles.length,
+            fetchedAt: cachedData.timestamp,
+          };
+        }
+
+        throw fallbackError;
+      }
+    }
+  }
+
+  /**
+   * キャッシュクリア
+   */
+  clearCache(): void {
+    this.cache.clear();
+    console.log('RSSキャッシュをクリアしました');
+  }
+
+  /**
+   * キャッシュデータ取得
+   */
+  private getCachedData(checkExpiry = true): CacheData | null {
+    const cached = this.cache.get(this.CACHE_KEY);
+    if (!cached) {
+      return null;
+    }
+
+    if (checkExpiry) {
+      const now = Date.now();
+      const cacheTime = new Date(cached.timestamp).getTime();
+
+      if (now - cacheTime > this.CACHE_DURATION) {
+        this.cache.delete(this.CACHE_KEY);
+        return null;
+      }
+    }
+
+    return cached;
+  }
+
+  /**
+   * キャッシュデータ設定
+   */
+  private setCacheData(articles: ZennRssArticle[], timestamp: string): void {
+    const cacheData: CacheData = {
+      articles,
+      timestamp,
+      expiresIn: Date.now() + this.CACHE_DURATION,
+    };
+
+    this.cache.set(this.CACHE_KEY, cacheData);
+  }
+
+  /**
+   * キャッシュ状態を取得
+   */
+  getCacheStatus() {
+    const cached = this.getCachedData(false);
+    if (!cached) {
+      return { hasCache: false };
+    }
+
+    const now = Date.now();
+    const cacheTime = new Date(cached.timestamp).getTime();
+    const age = now - cacheTime;
+    const isExpired = age > this.CACHE_DURATION;
+
+    return {
+      hasCache: true,
+      isExpired,
+      ageMinutes: Math.floor(age / (1000 * 60)),
+      articleCount: cached.articles.length,
+      timestamp: cached.timestamp,
+    };
+  }
+}
+
+// シングルトンパターンでエクスポート
+export const rssZennService = new RssZennService();

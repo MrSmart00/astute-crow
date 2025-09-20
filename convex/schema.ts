@@ -34,9 +34,33 @@ export default defineSchema({
     .index("by_likes", ["likedCount"])
     .index("by_published", ["publishedAt"]),
 
+  // RSS記事データ（Zennフィード）
+  rssArticles: defineTable({
+    externalId: v.string(), // RSS上のguidまたはURL
+    title: v.string(),
+    link: v.string(),
+    description: v.string(),
+    author: v.string(),
+    pubDate: v.string(),
+
+    // メタデータから取得した追加情報
+    ogImage: v.optional(v.string()),
+    avatarUrl: v.optional(v.string()),
+    siteName: v.string(),
+    thumbnail: v.optional(v.string()), // RSS enclosureから
+
+    // システム情報
+    fetchedAt: v.string(),
+    createdAt: v.number(),
+  })
+    .index("by_external_id", ["externalId"])
+    .index("by_link", ["link"])
+    .index("by_pub_date", ["pubDate"])
+    .index("by_created_at", ["createdAt"]),
+
   // トレンドデータのキャッシュ情報
   trendCache: defineTable({
-    cacheKey: v.string(), // "trends_all", "trends_tech", "trends_idea", "trends_books"
+    cacheKey: v.string(), // "trends_all", "trends_tech", "trends_idea", "trends_books", "rss_articles"
     expiresAt: v.number(),
     lastFetched: v.number(),
     isValid: v.boolean(),
