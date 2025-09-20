@@ -4,10 +4,11 @@
   "description": "",
   "main": "index.js",
   "scripts": {
-    "dev": "vite",
+    "dev": "concurrently \"npm:dev:vite\" \"npm:dev:convex\"",
+    "dev:vite": "vite",
+    "dev:convex": "convex dev",
     "build": "tsc && vite build",
     "preview": "vite preview",
-    "convex:dev": "convex dev",
     "convex:codegen": "convex codegen"
   },
   "repository": {
@@ -24,6 +25,7 @@
   "homepage": "https://github.com/MrSmart00/astute-crow#readme",
   "devDependencies": {
     "@types/node": "^24.3.3",
+    "concurrently": "^9.2.1",
     "typescript": "^5.9.2",
     "vite": "^7.1.5"
   },

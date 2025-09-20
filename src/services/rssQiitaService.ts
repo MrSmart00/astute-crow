@@ -1,18 +1,12 @@
 import { ConvexHttpClient } from 'convex/browser';
 import { api } from '../../convex/_generated/api';
-import { ZennRssResponse, ZennRssArticle } from '../types/zenn';
+import { QiitaRssArticle, QiitaRssResponse, CacheData } from '../types/qiita';
 
-interface CacheData {
-  articles: ZennRssArticle[];
-  timestamp: string;
-  expiresIn: number;
-}
-
-class RssZennService {
+class RssQiitaService {
   private convex: ConvexHttpClient;
   private cache: Map<string, CacheData> = new Map();
   private readonly CACHE_DURATION = 5 * 60 * 1000; // 5分
-  private readonly CACHE_KEY = 'rss-articles';
+  private readonly CACHE_KEY = 'qiita-rss-articles';
 
   constructor() {
     // Convex URL を環境変数から取得（本番環境では適切に設定）
@@ -26,12 +20,12 @@ class RssZennService {
   /**
    * RSS記事を取得（メタデータ付き）
    */
-  async fetchRssArticles(useCache = true): Promise<ZennRssResponse> {
+  async fetchRssArticles(useCache = true): Promise<QiitaRssResponse> {
     // キャッシュチェック
     if (useCache) {
       const cachedData = this.getCachedData();
       if (cachedData) {
-        console.log('RSS記事をキャッシュから取得');
+        console.log('Qiita RSS記事をキャッシュから取得');
         return {
           articles: cachedData.articles,
           totalCount: cachedData.articles.length,
@@ -41,16 +35,16 @@ class RssZennService {
     }
 
     try {
-      console.log('RSS記事をAPI経由で取得開始');
+      console.log('Qiita RSS記事をAPI経由で取得開始');
 
-      const response = await this.convex.action(api.rssZennApi.fetchRssArticles, {});
+      const response = await this.convex.action(api.rssQiitaApi.fetchRssArticles, {});
 
       if (!response || !Array.isArray(response.articles)) {
         throw new Error('Invalid response format from API');
       }
 
       // レスポンスデータを変換
-      const articles: ZennRssArticle[] = response.articles.map((article: any) => ({
+      const articles: QiitaRssArticle[] = response.articles.map((article: any) => ({
         id: article.id,
         title: article.title,
         link: article.link,
@@ -63,7 +57,7 @@ class RssZennService {
         thumbnail: article.thumbnail,
       }));
 
-      const result: ZennRssResponse = {
+      const result: QiitaRssResponse = {
         articles,
         totalCount: response.totalCount || articles.length,
         fetchedAt: response.fetchedAt || new Date().toISOString(),
@@ -72,29 +66,29 @@ class RssZennService {
       // キャッシュに保存
       this.setCacheData(articles, result.fetchedAt);
 
-      console.log(`RSS記事を取得完了: ${articles.length}件`);
+      console.log(`Qiita RSS記事を取得完了: ${articles.length}件`);
       return result;
 
     } catch (error) {
-      console.error('RSS記事の取得に失敗:', error);
-      throw new Error('RSS記事の取得に失敗しました。ネットワーク接続を確認してください。');
+      console.error('Qiita RSS記事の取得に失敗:', error);
+      throw new Error('Qiita RSS記事の取得に失敗しました。ネットワーク接続を確認してください。');
     }
   }
 
   /**
    * RSS記事を高速取得（メタデータなし）
    */
-  async fetchRssArticlesRaw(): Promise<ZennRssResponse> {
+  async fetchRssArticlesRaw(): Promise<QiitaRssResponse> {
     try {
-      console.log('RSS記事を高速取得開始');
+      console.log('Qiita RSS記事を高速取得開始');
 
-      const response = await this.convex.action(api.rssZennApi.fetchRssArticlesRaw, {});
+      const response = await this.convex.action(api.rssQiitaApi.fetchRssArticlesRaw, {});
 
       if (!response || !Array.isArray(response.articles)) {
         throw new Error('Invalid response format from API');
       }
 
-      const articles: ZennRssArticle[] = response.articles.map((article: any) => ({
+      const articles: QiitaRssArticle[] = response.articles.map((article: any) => ({
         id: article.id,
         title: article.title,
         link: article.link,
@@ -107,41 +101,41 @@ class RssZennService {
         thumbnail: article.thumbnail,
       }));
 
-      const result: ZennRssResponse = {
+      const result: QiitaRssResponse = {
         articles,
         totalCount: response.totalCount || articles.length,
         fetchedAt: response.fetchedAt || new Date().toISOString(),
       };
 
-      console.log(`RSS記事を高速取得完了: ${articles.length}件`);
+      console.log(`Qiita RSS記事を高速取得完了: ${articles.length}件`);
       return result;
 
     } catch (error) {
-      console.error('RSS記事の高速取得に失敗:', error);
-      throw new Error('RSS記事の取得に失敗しました。');
+      console.error('Qiita RSS記事の高速取得に失敗:', error);
+      throw new Error('Qiita RSS記事の取得に失敗しました。');
     }
   }
 
   /**
    * キャッシュから試行
    */
-  async fetchWithFallback(): Promise<ZennRssResponse> {
+  async fetchWithFallback(): Promise<QiitaRssResponse> {
     try {
       // まずメタデータ付きで取得を試行
       return await this.fetchRssArticles(true);
     } catch (error) {
-      console.warn('メタデータ付き取得に失敗、高速取得を試行:', error);
+      console.warn('Qiitaメタデータ付き取得に失敗、高速取得を試行:', error);
 
       try {
         // 高速取得を試行
         return await this.fetchRssArticlesRaw();
       } catch (fallbackError) {
-        console.error('高速取得も失敗:', fallbackError);
+        console.error('Qiita高速取得も失敗:', fallbackError);
 
         // 最後にキャッシュから取得を試行
         const cachedData = this.getCachedData(false); // 期限切れでも取得
         if (cachedData) {
-          console.log('期限切れキャッシュから取得');
+          console.log('Qiita期限切れキャッシュから取得');
           return {
             articles: cachedData.articles,
             totalCount: cachedData.articles.length,
@@ -159,7 +153,7 @@ class RssZennService {
    */
   clearCache(): void {
     this.cache.clear();
-    console.log('RSSキャッシュをクリアしました');
+    console.log('Qiita RSSキャッシュをクリアしました');
   }
 
   /**
@@ -187,7 +181,7 @@ class RssZennService {
   /**
    * キャッシュデータ設定
    */
-  private setCacheData(articles: ZennRssArticle[], timestamp: string): void {
+  private setCacheData(articles: QiitaRssArticle[], timestamp: string): void {
     const cacheData: CacheData = {
       articles,
       timestamp,
@@ -221,5 +215,4 @@ class RssZennService {
   }
 }
 
-// シングルトンパターンでエクスポート
-export const rssZennService = new RssZennService();
+export const rssQiitaService = new RssQiitaService();

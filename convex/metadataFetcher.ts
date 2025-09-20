@@ -7,7 +7,7 @@ export const fetchMetadata = action({
   args: {
     url: v.string(),
   },
-  handler: async (ctx, args) => {
+  handler: async (ctx, args): Promise<any> => {
     return await ctx.runAction(internal.metadataFetcher.fetchMetadataInternal, args);
   },
 });

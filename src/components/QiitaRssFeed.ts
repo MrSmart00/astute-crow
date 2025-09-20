@@ -1,9 +1,9 @@
-import { ZennRssState, ZennRssArticle, ErrorState } from '../types/zenn';
-import { rssZennService } from '../services/rssZennService';
+import { QiitaRssState, QiitaRssArticle, ErrorState } from '../types/qiita';
+import { rssQiitaService } from '../services/rssQiitaService';
 
-export class ZennRssFeed {
+export class QiitaRssFeed {
   private container: HTMLElement;
-  private state: ZennRssState = {
+  private state: QiitaRssState = {
     articles: [],
     loading: { isLoading: false },
     error: null,
@@ -44,7 +44,7 @@ export class ZennRssFeed {
       <div class="loading-container">
         <div class="loading-message">
           <div class="loading-spinner"></div>
-          <span>${message || 'RSS記事を取得中...'}</span>
+          <span>${message || 'Qiita RSS記事を取得中...'}</span>
         </div>
         <div class="article-grid">
           ${skeletonCards}
@@ -54,7 +54,7 @@ export class ZennRssFeed {
   }
 
   // 記事カードを作成
-  private createArticleCard(article: ZennRssArticle): string {
+  private createArticleCard(article: QiitaRssArticle): string {
     const publishedDate = new Date(article.pubDate);
     const timeAgo = this.getTimeAgo(publishedDate);
     const imageUrl = article.ogImage || article.thumbnail || '/default-article-image.png';
@@ -64,7 +64,7 @@ export class ZennRssFeed {
       <article class="article-card" data-article-id="${this.escapeHtml(article.id)}">
         <div class="article-image">
           <img src="${this.escapeHtml(imageUrl)}" alt="${this.escapeHtml(article.title)}" loading="lazy" />
-          <div class="article-source-badge">RSS</div>
+          <div class="article-source-badge qiita-badge">RSS</div>
         </div>
         <div class="article-content">
           <h3 class="article-title">
@@ -95,7 +95,7 @@ export class ZennRssFeed {
           <h3>${error.message}</h3>
           ${error.subMessage ? `<p>${error.subMessage}</p>` : ''}
           ${error.showRetryButton ? `
-            <button class="retry-button" onclick="window.zennRssFeed?.refresh()">
+            <button class="retry-button" onclick="window.qiitaRssFeed?.refresh()">
               再試行
             </button>
           ` : ''}
@@ -111,7 +111,7 @@ export class ZennRssFeed {
         <div class="empty-state">
           <div class="empty-icon">📝</div>
           <h3>記事が見つかりませんでした</h3>
-          <p>RSSフィードから記事を取得できませんでした。</p>
+          <p>Qiita RSSフィードから記事を取得できませんでした。</p>
         </div>
       `;
     }
@@ -122,7 +122,7 @@ export class ZennRssFeed {
     return `
       <div class="articles-container">
         <div class="articles-header">
-          <h2>📡 Zenn RSS フィード</h2>
+          <h2>📡 Qiita RSS フィード</h2>
           ${lastUpdated ? `<div class="last-updated">最終更新: ${lastUpdated}</div>` : ''}
         </div>
         <div class="article-grid">
@@ -184,28 +184,28 @@ export class ZennRssFeed {
 
   // RSS記事をロード
   async loadRssArticles(): Promise<void> {
-    this.state.loading = { isLoading: true, message: 'RSS記事を取得中...' };
+    this.state.loading = { isLoading: true, message: 'Qiita RSS記事を取得中...' };
     this.state.error = null;
     this.render();
 
     try {
-      console.log('RSS記事の取得を開始します...');
+      console.log('Qiita RSS記事の取得を開始します...');
 
-      const response = await rssZennService.fetchWithFallback();
+      const response = await rssQiitaService.fetchWithFallback();
 
       this.state.articles = response.articles;
       this.state.loading = { isLoading: false };
       this.state.lastUpdated = response.fetchedAt;
       this.render();
 
-      console.log(`RSS記事を取得完了: ${response.articles.length}件`);
+      console.log(`Qiita RSS記事を取得完了: ${response.articles.length}件`);
 
     } catch (error) {
-      console.error('RSS記事の取得に失敗しました:', error);
+      console.error('Qiita RSS記事の取得に失敗しました:', error);
       this.state.loading = { isLoading: false };
       this.state.error = {
         type: 'error',
-        message: 'RSS記事の取得に失敗しました',
+        message: 'Qiita RSS記事の取得に失敗しました',
         subMessage: error instanceof Error ? error.message : 'しばらく時間をおいて再度お試しください。',
         showRetryButton: true,
       };
