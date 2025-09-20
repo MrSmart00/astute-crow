@@ -29,7 +29,7 @@ export interface QiitaRssArticle {
   ogImage?: string;
   avatarUrl?: string;
   siteName: string;
-  thumbnail?: string;
+  metadata?: any;
 }
 
 // RSS記事レスポンスの型

@@ -57,31 +57,27 @@ export class ZennRssFeed {
   private createArticleCard(article: ZennRssArticle): string {
     const publishedDate = new Date(article.pubDate);
     const timeAgo = this.getTimeAgo(publishedDate);
-    const imageUrl = article.ogImage || article.thumbnail || '/default-article-image.png';
-    const avatarUrl = article.avatarUrl || '/default-avatar.png';
+    const avatarUrl = article.avatarUrl;
 
     return `
       <article class="article-card" data-article-id="${this.escapeHtml(article.id)}">
-        <div class="article-image">
-          <img src="${this.escapeHtml(imageUrl)}" alt="${this.escapeHtml(article.title)}" loading="lazy" />
-          <div class="article-source-badge">RSS</div>
-        </div>
-        <div class="article-content">
-          <h3 class="article-title">
-            <a href="${this.escapeHtml(article.link)}" target="_blank" rel="noopener noreferrer">
-              ${this.escapeHtml(article.title)}
-            </a>
-          </h3>
-          <p class="article-description">${this.escapeHtml(article.description)}</p>
-          <div class="article-meta">
-            <div class="author-info">
-              <img src="${this.escapeHtml(avatarUrl)}" alt="${this.escapeHtml(article.author)}" class="author-avatar" />
-              <span class="author-name">${this.escapeHtml(article.author)}</span>
+        <a href="${this.escapeHtml(article.link)}" target="_blank" rel="noopener noreferrer" class="article-link">
+          <div class="article-content">
+            <h3 class="article-title">${this.escapeHtml(article.title)}</h3>
+            <p class="article-description">${this.escapeHtml(article.description)}</p>
+            <div class="article-meta">
+              <div class="author-info">
+                ${avatarUrl ? `
+                  <img src="${this.escapeHtml(avatarUrl)}" alt="${this.escapeHtml(article.author)}"
+                       class="author-avatar" onerror="this.style.display='none'" />
+                ` : ''}
+                <span class="author-name">${this.escapeHtml(article.author)}</span>
+              </div>
+              <span class="article-date">${timeAgo}</span>
+              <span class="article-site">${this.escapeHtml(article.siteName)}</span>
             </div>
-            <span class="article-date">${timeAgo}</span>
-            <span class="article-site">${this.escapeHtml(article.siteName)}</span>
           </div>
-        </div>
+        </a>
       </article>
     `;
   }

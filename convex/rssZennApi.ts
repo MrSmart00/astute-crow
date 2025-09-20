@@ -8,7 +8,6 @@ interface RssArticle {
   description: string;
   author: string;
   pubDate: string;
-  thumbnail: string | null;
 }
 
 interface RssArticleWithMetadata extends RssArticle {
@@ -47,9 +46,9 @@ export const fetchRssArticles = action({
 
             return {
               ...article,
-              ogImage: metadata.ogp?.image || null,
+              ogImage: null,
               avatarUrl: metadata.meta?.['zenn:image'] || null,
-              siteName: metadata.ogp?.site_name || 'Zenn',
+              siteName: 'Zenn',
             };
           } catch (error) {
             console.error(`Failed to fetch metadata for ${article.link}:`, error);
@@ -168,13 +167,6 @@ function parseRssItem(itemText: string): RssArticle | null {
     description: extractCData('description'),
     author: extractText('dc:creator'),
     pubDate: extractText('pubDate'),
-    // enclosureからサムネイル画像を取得
-    thumbnail: extractThumbnailFromEnclosure(itemText),
   };
 }
 
-// enclosureタグからサムネイル画像URLを抽出
-function extractThumbnailFromEnclosure(itemText: string): string | null {
-  const enclosureMatch = itemText.match(/<enclosure[^>]*url="([^"]*)"[^>]*\/>/i);
-  return enclosureMatch ? enclosureMatch[1] : null;
-}

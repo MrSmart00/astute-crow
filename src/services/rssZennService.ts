@@ -60,7 +60,6 @@ class RssZennService {
         ogImage: article.ogImage,
         avatarUrl: article.avatarUrl,
         siteName: article.siteName,
-        thumbnail: article.thumbnail,
       }));
 
       const result: ZennRssResponse = {
@@ -104,7 +103,6 @@ class RssZennService {
         ogImage: article.ogImage,
         avatarUrl: article.avatarUrl,
         siteName: article.siteName,
-        thumbnail: article.thumbnail,
       }));
 
       const result: ZennRssResponse = {

@@ -47,7 +47,6 @@ export default defineSchema({
     ogImage: v.optional(v.string()),
     avatarUrl: v.optional(v.string()),
     siteName: v.string(),
-    thumbnail: v.optional(v.string()), // RSS enclosureから
 
     // システム情報
     fetchedAt: v.string(),

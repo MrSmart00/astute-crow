@@ -58,7 +58,6 @@ export interface ZennRssArticle {
   ogImage?: string;
   avatarUrl?: string;
   siteName: string;
-  thumbnail?: string;
 }
 
 // RSS記事レスポンスの型

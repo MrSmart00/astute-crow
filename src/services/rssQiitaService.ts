@@ -54,7 +54,7 @@ class RssQiitaService {
         ogImage: article.ogImage,
         avatarUrl: article.avatarUrl,
         siteName: article.siteName,
-        thumbnail: article.thumbnail,
+        metadata: article.metadata,
       }));
 
       const result: QiitaRssResponse = {
@@ -98,7 +98,7 @@ class RssQiitaService {
         ogImage: article.ogImage,
         avatarUrl: article.avatarUrl,
         siteName: article.siteName,
-        thumbnail: article.thumbnail,
+        metadata: article.metadata,
       }));
 
       const result: QiitaRssResponse = {

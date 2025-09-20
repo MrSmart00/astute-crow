@@ -8,13 +8,13 @@ interface RssArticle {
   description: string;
   author: string;
   pubDate: string;
-  thumbnail: string | null;
 }
 
 interface RssArticleWithMetadata extends RssArticle {
   ogImage: string | null;
   avatarUrl: string | null;
   siteName: string;
+  metadata?: any;
 }
 
 // RSSから記事情報を取得し、メタデータで補完
@@ -37,32 +37,50 @@ export const fetchRssArticles = action({
       // RSS記事を解析
       const articles = parseRssArticles(rssText);
 
-      // 各記事のメタデータを並列で取得（最初の10件のみ）
-      const articlesWithMetadata: RssArticleWithMetadata[] = await Promise.all(
-        articles.slice(0, 10).map(async (article): Promise<RssArticleWithMetadata> => {
-          try {
-            const metadata: any = await ctx.runAction(internal.metadataFetcher.fetchMetadataInternal, {
-              url: article.link,
-            });
+      // 上位10件の記事のメタデータを取得
+      const articlesWithMetadata: RssArticleWithMetadata[] = [];
+      const topArticles = articles.slice(0, 10);
 
-            return {
-              ...article,
-              ogImage: metadata.ogp?.image || null,
-              avatarUrl: metadata.meta?.['qiita:user_image'] || null,
-              siteName: metadata.ogp?.site_name || 'Qiita',
-            };
-          } catch (error) {
-            console.error(`Failed to fetch metadata for ${article.link}:`, error);
-            // メタデータ取得に失敗してもRSS情報は保持
-            return {
-              ...article,
-              ogImage: null,
-              avatarUrl: null,
-              siteName: 'Qiita',
-            };
+      for (const article of topArticles) {
+        try {
+          // メタデータを取得
+          const metadata = await ctx.runAction(internal.metadataFetcher.fetchMetadataInternal, {
+            url: article.link,
+          });
+
+          // メタデータから著者情報を抽出
+          let avatarUrl = null;
+
+          // JSON-LDから著者情報を取得
+          if (metadata.jsonLd) {
+            for (const jsonLd of metadata.jsonLd) {
+              if (jsonLd['@type'] === 'Article' && jsonLd.author) {
+                if (jsonLd.author.image) {
+                  avatarUrl = jsonLd.author.image;
+                }
+              }
+            }
           }
-        })
-      );
+
+          articlesWithMetadata.push({
+            ...article,
+            ogImage: null,
+            avatarUrl,
+            siteName: 'Qiita',
+            metadata,
+          });
+
+        } catch (error) {
+          console.error(`Failed to fetch metadata for ${article.link}:`, error);
+          // メタデータ取得に失敗した場合はデフォルト値で追加
+          articlesWithMetadata.push({
+            ...article,
+            ogImage: null,
+            avatarUrl: null,
+            siteName: 'Qiita',
+          });
+        }
+      }
 
       return {
         articles: articlesWithMetadata,
@@ -207,8 +225,6 @@ function parseRssItem(itemText: string): RssArticle | null {
     description: extractCData('description'),
     author: extractText('dc:creator'),
     pubDate: extractText('pubDate'),
-    // enclosureからサムネイル画像を取得
-    thumbnail: extractThumbnailFromEnclosure(itemText),
   };
 }
 
@@ -237,7 +253,6 @@ function parseAtomEntry(entryText: string): RssArticle | null {
     description: content || '',
     author: authorName || 'Unknown',
     pubDate: published || '',
-    thumbnail: null
   };
 }
 
@@ -253,8 +268,3 @@ function extractAuthorName(entryText: string): string {
   return authorMatch ? authorMatch[1].trim() : '';
 }
 
-// enclosureタグからサムネイル画像URLを抽出（RSS用）
-function extractThumbnailFromEnclosure(itemText: string): string | null {
-  const enclosureMatch = itemText.match(/<enclosure[^>]*url="([^"]*)"[^>]*\/>/i);
-  return enclosureMatch ? enclosureMatch[1] : null;
-}
