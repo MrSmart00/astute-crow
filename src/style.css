@@ -607,3 +607,39 @@ body {
 .article-card[data-site="zenn"] .article-site {
   color: var(--zenn-color);
 }
+
+/* 統合RSS用のスタイル */
+.feed-stats {
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+  margin-bottom: 0.5rem;
+}
+
+.feed-count {
+  font-size: 1rem;
+  font-weight: 600;
+  color: var(--text-color);
+}
+
+.feed-breakdown {
+  display: flex;
+  gap: 0.5rem;
+  font-size: 0.9rem;
+}
+
+.feed-breakdown span {
+  font-weight: 500;
+}
+
+@media (max-width: 768px) {
+  .feed-stats {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 0.5rem;
+  }
+
+  .feed-breakdown {
+    gap: 1rem;
+  }
+}

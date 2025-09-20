@@ -1,9 +1,9 @@
-import { QiitaRssState, QiitaRssArticle, ErrorState } from '../types/qiita';
-import { rssQiitaService } from '../services/rssQiitaService';
+import { UnifiedRssState, RssArticle, ErrorState } from '../types/rss';
+import { unifiedRssService } from '../services/unifiedRssService';
 
-export class QiitaRssFeed {
+export class UnifiedRssFeed {
   private container: HTMLElement;
-  private state: QiitaRssState = {
+  private state: UnifiedRssState = {
     articles: [],
     loading: { isLoading: false },
     error: null,
@@ -44,7 +44,7 @@ export class QiitaRssFeed {
       <div class="loading-container">
         <div class="loading-message">
           <div class="loading-spinner"></div>
-          <span>${message || 'Qiita RSS記事を取得中...'}</span>
+          <span>${message || 'RSS記事を取得中...'}</span>
         </div>
         <div class="article-grid">
           ${skeletonCards}
@@ -54,18 +54,21 @@ export class QiitaRssFeed {
   }
 
   // 記事カードを作成
-  private createArticleCard(article: QiitaRssArticle): string {
+  private createArticleCard(article: RssArticle): string {
     const publishedDate = new Date(article.pubDate);
     const timeAgo = this.getTimeAgo(publishedDate);
-
-    // メタデータから情報を取得
-    const ogImage = article.ogImage;
     const avatarUrl = article.avatarUrl;
-    const displayTitle = article.metadata?.ogp?.title || article.title;
-    const displayDescription = article.metadata?.ogp?.description || article.description;
+
+    // サイト別の表示調整
+    const displayTitle = article.site === 'qiita' && article.metadata?.ogp?.title
+      ? article.metadata.ogp.title
+      : article.title;
+    const displayDescription = article.site === 'qiita' && article.metadata?.ogp?.description
+      ? article.metadata.ogp.description
+      : article.description;
 
     return `
-      <article class="article-card" data-article-id="${this.escapeHtml(article.id)}" data-site="qiita">
+      <article class="article-card" data-article-id="${this.escapeHtml(article.id)}" data-site="${article.site}">
         <a href="${this.escapeHtml(article.link)}" target="_blank" rel="noopener noreferrer" class="article-link">
           <div class="article-content">
             <h3 class="article-title">${this.escapeHtml(displayTitle)}</h3>
@@ -98,7 +101,7 @@ export class QiitaRssFeed {
           <h3>${error.message}</h3>
           ${error.subMessage ? `<p>${error.subMessage}</p>` : ''}
           ${error.showRetryButton ? `
-            <button class="retry-button" onclick="window.qiitaRssFeed?.refresh()">
+            <button class="retry-button" onclick="window.unifiedRssFeed?.refresh()">
               再試行
             </button>
           ` : ''}
@@ -114,7 +117,7 @@ export class QiitaRssFeed {
         <div class="empty-state">
           <div class="empty-icon">📝</div>
           <h3>記事が見つかりませんでした</h3>
-          <p>Qiita RSSフィードから記事を取得できませんでした。</p>
+          <p>RSSフィードから記事を取得できませんでした。</p>
         </div>
       `;
     }
@@ -122,10 +125,21 @@ export class QiitaRssFeed {
     const articlesHtml = this.state.articles.map(article => this.createArticleCard(article)).join('');
     const lastUpdated = this.state.lastUpdated ? new Date(this.state.lastUpdated).toLocaleString('ja-JP') : '';
 
+    // サイト別の記事数を計算
+    const qiitaCount = this.state.articles.filter(a => a.site === 'qiita').length;
+    const zennCount = this.state.articles.filter(a => a.site === 'zenn').length;
+
     return `
       <div class="articles-container">
         <div class="articles-header">
-          <h2>📡 Qiita RSS フィード</h2>
+          <h2>📡 RSS フィード</h2>
+          <div class="feed-stats">
+            <span class="feed-count">総計 ${this.state.articles.length}件</span>
+            <span class="feed-breakdown">
+              <span style="color: var(--qiita-color)">Qiita: ${qiitaCount}件</span>
+              <span style="color: var(--zenn-color)">Zenn: ${zennCount}件</span>
+            </span>
+          </div>
           ${lastUpdated ? `<div class="last-updated">最終更新: ${lastUpdated}</div>` : ''}
         </div>
         <div class="article-grid">
@@ -185,37 +199,36 @@ export class QiitaRssFeed {
     await this.loadRssArticles();
   }
 
-  // RSS記事をロード
+  // 統合RSS記事をロード
   async loadRssArticles(): Promise<void> {
-    this.state.loading = { isLoading: true, message: 'Qiita RSS記事を取得中...' };
+    this.state.loading = { isLoading: true, message: 'RSS記事を取得中...' };
     this.state.error = null;
     this.render();
 
     try {
-      console.log('Qiita RSS記事の取得を開始します...');
+      console.log('統合RSS記事の取得を開始します...');
 
-      const response = await rssQiitaService.fetchWithFallback();
+      const response = await unifiedRssService.fetchUnifiedRssArticles();
 
       this.state.articles = response.articles;
       this.state.loading = { isLoading: false };
       this.state.lastUpdated = response.fetchedAt;
       this.render();
 
-      console.log(`Qiita RSS記事を取得完了: ${response.articles.length}件`);
+      console.log(`統合RSS記事を取得完了: 総計${response.totalCount}件 (Qiita: ${response.qiitaCount}件, Zenn: ${response.zennCount}件)`);
 
     } catch (error) {
-      console.error('Qiita RSS記事の取得に失敗しました:', error);
+      console.error('統合RSS記事の取得に失敗しました:', error);
       this.state.loading = { isLoading: false };
       this.state.error = {
         type: 'error',
-        message: 'Qiita RSS記事の取得に失敗しました',
+        message: '統合RSS記事の取得に失敗しました',
         subMessage: error instanceof Error ? error.message : 'しばらく時間をおいて再度お試しください。',
         showRetryButton: true,
       };
       this.render();
     }
   }
-
 
   // リフレッシュ
   async refresh(): Promise<void> {
