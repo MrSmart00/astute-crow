@@ -25,7 +25,6 @@ export class UnifiedRssFeed {
         <div class="article-image skeleton-image"></div>
         <div class="article-content">
           <div class="skeleton-text skeleton-title"></div>
-          <div class="skeleton-text skeleton-description"></div>
           <div class="article-meta">
             <div class="skeleton-avatar"></div>
             <div class="skeleton-text skeleton-author"></div>
@@ -68,27 +67,26 @@ export class UnifiedRssFeed {
       : article.description;
 
     return `
-      <article class="article-card" data-article-id="${this.escapeHtml(article.id)}" data-site="${article.site}">
-        <a href="${this.escapeHtml(article.link)}" target="_blank" rel="noopener noreferrer" class="article-link">
-          <div class="article-content">
-            <h3 class="article-title">${this.escapeHtml(displayTitle)}</h3>
-            ${displayDescription ? `
-              <p class="article-description">${this.escapeHtml(displayDescription)}</p>
-            ` : ''}
-            <div class="article-meta">
-              <div class="author-info">
-                ${avatarUrl ? `
-                  <img src="${this.escapeHtml(avatarUrl)}" alt="${this.escapeHtml(article.author)}"
-                       class="author-avatar" onerror="this.style.display='none'" />
-                ` : ''}
-                <span class="author-name">${this.escapeHtml(article.author)}</span>
-              </div>
-              <span class="article-date">${timeAgo}</span>
-              <span class="article-site">${this.escapeHtml(article.siteName)}</span>
-            </div>
+      <a href="${this.escapeHtml(article.link)}" target="_blank" rel="noopener noreferrer" class="zenn-card article" data-site="${article.site}">
+        <div class="zenn-card-header">
+          <h3 class="zenn-title">${this.escapeHtml(displayTitle)}</h3>
+        </div>
+        <div class="zenn-card-body">
+          <div class="zenn-meta">
+            <span class="published-date">${timeAgo}</span>
           </div>
-        </a>
-      </article>
+        </div>
+        <div class="zenn-card-footer">
+          <div class="zenn-author">
+            ${avatarUrl ? `
+              <img src="${this.escapeHtml(avatarUrl)}" alt="${this.escapeHtml(article.author)}"
+                   class="author-avatar" onerror="this.style.display='none'" />
+            ` : ''}
+            <span class="author-name">${this.escapeHtml(article.author)}</span>
+          </div>
+          <span class="article-site">${this.escapeHtml(article.siteName)}</span>
+        </div>
+      </a>
     `;
   }
 
