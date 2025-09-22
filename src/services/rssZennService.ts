@@ -59,6 +59,7 @@ class RssZennService {
         pubDate: article.pubDate,
         avatarUrl: article.avatarUrl,
         siteName: article.siteName,
+        site: 'zenn' as const,
       }));
 
       const result: ZennRssResponse = {
@@ -100,6 +101,7 @@ class RssZennService {
         pubDate: article.pubDate,
         avatarUrl: article.avatarUrl,
         siteName: article.siteName,
+        site: 'zenn' as const,
       }));
 
       const result: ZennRssResponse = {

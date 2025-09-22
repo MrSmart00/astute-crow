@@ -59,6 +59,7 @@ class RssQiitaService {
         pubDate: article.pubDate,
         avatarUrl: article.avatarUrl,
         siteName: article.siteName,
+        site: 'qiita' as const,
         metadata: article.metadata,
       }));
 
@@ -101,6 +102,7 @@ class RssQiitaService {
         pubDate: article.pubDate,
         avatarUrl: article.avatarUrl,
         siteName: article.siteName,
+        site: 'qiita' as const,
         metadata: article.metadata,
       }));
 
