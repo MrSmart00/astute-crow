@@ -233,7 +233,6 @@ function parseAtomEntry(entryText: string): RssArticle | null {
   const link = extractAtomLink(entryText);
   const id = extractText(entryText, 'id');
   const published = extractText(entryText, 'published');
-  const content = extractText(entryText, 'content');
   const authorName = extractAuthorName(entryText);
 
   if (!title || !link) {

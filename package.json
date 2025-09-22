@@ -9,6 +9,8 @@
     "dev:convex": "convex dev",
     "build": "tsc && vite build",
     "preview": "vite preview",
+    "typecheck": "tsc --noEmit && cd convex && tsc --noEmit",
+    "typecheck:watch": "concurrently \"tsc --noEmit --watch\" \"cd convex && tsc --noEmit --watch\"",
     "convex:codegen": "convex codegen"
   },
   "repository": {
@@ -18,7 +20,7 @@
   "keywords": [],
   "author": "",
   "license": "MIT",
-  "type": "commonjs",
+  "type": "module",
   "bugs": {
     "url": "https://github.com/MrSmart00/astute-crow/issues"
   },
