@@ -20,7 +20,7 @@
   "keywords": [],
   "author": "",
   "license": "MIT",
-  "type": "commonjs",
+  "type": "module",
   "bugs": {
     "url": "https://github.com/MrSmart00/astute-crow/issues"
   },
