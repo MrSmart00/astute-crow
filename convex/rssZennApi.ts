@@ -5,13 +5,11 @@ interface RssArticle {
   id: string;
   title: string;
   link: string;
-  description: string;
   author: string;
   pubDate: string;
 }
 
 interface RssArticleWithMetadata extends RssArticle {
-  ogImage: string | null;
   avatarUrl: string | null;
   siteName: string;
 }
@@ -46,7 +44,6 @@ export const fetchRssArticles = action({
 
             return {
               ...article,
-              ogImage: null,
               avatarUrl: metadata.meta?.['zenn:image'] || null,
               siteName: 'Zenn',
             };
@@ -55,7 +52,6 @@ export const fetchRssArticles = action({
             // メタデータ取得に失敗してもRSS情報は保持
             return {
               ...article,
-              ogImage: null,
               avatarUrl: null,
               siteName: 'Zenn',
             };
@@ -96,7 +92,6 @@ export const fetchRssArticlesRaw = action({
       return {
         articles: articles.map(article => ({
           ...article,
-          ogImage: null,
           avatarUrl: null,
           siteName: 'Zenn',
         })),
@@ -164,7 +159,6 @@ function parseRssItem(itemText: string): RssArticle | null {
     id: guid || link,
     title,
     link,
-    description: extractCData('description'),
     author: extractText('dc:creator'),
     pubDate: extractText('pubDate'),
   };
