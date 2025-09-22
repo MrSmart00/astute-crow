@@ -3,10 +3,8 @@ export interface RssArticle {
   id: string;
   title: string;
   link: string;
-  description: string;
   author: string;
   pubDate: string;
-  ogImage?: string;
   avatarUrl?: string;
   siteName: string;
   site: 'qiita' | 'zenn'; // サイト識別子

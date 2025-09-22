@@ -1,6 +1,13 @@
 import { ConvexHttpClient } from 'convex/browser';
 import { api } from '../../convex/_generated/api';
-import { QiitaRssArticle, QiitaRssResponse, CacheData } from '../types/qiita';
+import { RssArticle, CacheData } from '../types/rss';
+
+// Qiita専用のレスポンス型
+interface QiitaRssResponse {
+  articles: RssArticle[];
+  totalCount: number;
+  fetchedAt: string;
+}
 
 class RssQiitaService {
   private convex: ConvexHttpClient;
@@ -44,14 +51,12 @@ class RssQiitaService {
       }
 
       // レスポンスデータを変換
-      const articles: QiitaRssArticle[] = response.articles.map((article: any) => ({
+      const articles: RssArticle[] = response.articles.map((article: any) => ({
         id: article.id,
         title: article.title,
         link: article.link,
-        description: article.description,
         author: article.author,
         pubDate: article.pubDate,
-        ogImage: article.ogImage,
         avatarUrl: article.avatarUrl,
         siteName: article.siteName,
         metadata: article.metadata,
@@ -88,14 +93,12 @@ class RssQiitaService {
         throw new Error('Invalid response format from API');
       }
 
-      const articles: QiitaRssArticle[] = response.articles.map((article: any) => ({
+      const articles: RssArticle[] = response.articles.map((article: any) => ({
         id: article.id,
         title: article.title,
         link: article.link,
-        description: article.description,
         author: article.author,
         pubDate: article.pubDate,
-        ogImage: article.ogImage,
         avatarUrl: article.avatarUrl,
         siteName: article.siteName,
         metadata: article.metadata,
@@ -181,7 +184,7 @@ class RssQiitaService {
   /**
    * キャッシュデータ設定
    */
-  private setCacheData(articles: QiitaRssArticle[], timestamp: string): void {
+  private setCacheData(articles: RssArticle[], timestamp: string): void {
     const cacheData: CacheData = {
       articles,
       timestamp,

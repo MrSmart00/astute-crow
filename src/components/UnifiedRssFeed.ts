@@ -62,9 +62,6 @@ export class UnifiedRssFeed {
     const displayTitle = article.site === 'qiita' && article.metadata?.ogp?.title
       ? article.metadata.ogp.title
       : article.title;
-    const displayDescription = article.site === 'qiita' && article.metadata?.ogp?.description
-      ? article.metadata.ogp.description
-      : article.description;
 
     return `
       <a href="${this.escapeHtml(article.link)}" target="_blank" rel="noopener noreferrer" class="zenn-card article" data-site="${article.site}">

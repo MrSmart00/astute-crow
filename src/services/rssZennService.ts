@@ -1,11 +1,12 @@
 import { ConvexHttpClient } from 'convex/browser';
 import { api } from '../../convex/_generated/api';
-import { ZennRssResponse, ZennRssArticle } from '../types/zenn';
+import { RssArticle, CacheData } from '../types/rss';
 
-interface CacheData {
-  articles: ZennRssArticle[];
-  timestamp: string;
-  expiresIn: number;
+// Zenn専用のレスポンス型
+interface ZennRssResponse {
+  articles: RssArticle[];
+  totalCount: number;
+  fetchedAt: string;
 }
 
 class RssZennService {
@@ -50,14 +51,12 @@ class RssZennService {
       }
 
       // レスポンスデータを変換
-      const articles: ZennRssArticle[] = response.articles.map((article: any) => ({
+      const articles: RssArticle[] = response.articles.map((article: any) => ({
         id: article.id,
         title: article.title,
         link: article.link,
-        description: article.description,
         author: article.author,
         pubDate: article.pubDate,
-        ogImage: article.ogImage,
         avatarUrl: article.avatarUrl,
         siteName: article.siteName,
       }));
@@ -93,14 +92,12 @@ class RssZennService {
         throw new Error('Invalid response format from API');
       }
 
-      const articles: ZennRssArticle[] = response.articles.map((article: any) => ({
+      const articles: RssArticle[] = response.articles.map((article: any) => ({
         id: article.id,
         title: article.title,
         link: article.link,
-        description: article.description,
         author: article.author,
         pubDate: article.pubDate,
-        ogImage: article.ogImage,
         avatarUrl: article.avatarUrl,
         siteName: article.siteName,
       }));
@@ -185,7 +182,7 @@ class RssZennService {
   /**
    * キャッシュデータ設定
    */
-  private setCacheData(articles: ZennRssArticle[], timestamp: string): void {
+  private setCacheData(articles: RssArticle[], timestamp: string): void {
     const cacheData: CacheData = {
       articles,
       timestamp,
