@@ -1,3 +1,6 @@
+// 共通型をrss.tsからインポート
+import { LoadingState, ErrorState } from './rss';
+
 export interface ZennUser {
   username: string;
   name: string;
@@ -26,18 +29,6 @@ export interface CacheData {
   articles: ZennArticle[];
   timestamp: string;
   expiresIn: number;
-}
-
-export interface ErrorState {
-  type: 'error' | 'warning';
-  message: string;
-  subMessage?: string;
-  showRetryButton?: boolean;
-}
-
-export interface LoadingState {
-  isLoading: boolean;
-  message?: string;
 }
 
 export interface ZennTrendsState {

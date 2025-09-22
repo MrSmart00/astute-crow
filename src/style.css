@@ -6,6 +6,10 @@
   --text-muted: #888;
   --border-color: #404040;
   --card-background: #1a1a1a;
+
+  /* サイト別テーマカラー */
+  --qiita-color: #55c500;
+  --zenn-color: #3ea8ff;
 }
 
 * {
@@ -299,6 +303,127 @@ body {
   width: 40px;
 }
 
+/* 記事カード用スタイル */
+.article-card {
+  background: var(--card-background);
+  border: 1px solid var(--border-color);
+  border-radius: 12px;
+  overflow: hidden;
+  transition: transform 0.3s ease, border-color 0.3s ease, box-shadow 0.3s ease;
+  height: 100%;
+}
+
+.article-card:hover {
+  transform: translateY(-5px);
+  border-color: var(--primary-color);
+  box-shadow: 0 8px 25px rgba(100, 108, 255, 0.15);
+}
+
+.article-link {
+  display: block;
+  text-decoration: none;
+  color: inherit;
+  height: 100%;
+  display: flex;
+  flex-direction: column;
+}
+
+.article-image {
+  height: 200px;
+  background: #333;
+  overflow: hidden;
+}
+
+.article-image img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+
+.article-content {
+  flex: 1;
+  padding: 1.5rem;
+  display: flex;
+  flex-direction: column;
+}
+
+.article-title {
+  font-size: 1.1rem;
+  font-weight: 600;
+  margin: 0 0 1rem 0;
+  line-height: 1.4;
+  color: var(--text-color);
+  overflow: hidden;
+  display: -webkit-box;
+  -webkit-line-clamp: 2;
+  -webkit-box-orient: vertical;
+}
+
+
+.article-meta {
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+  margin-top: auto;
+  flex-wrap: wrap;
+}
+
+.author-info {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+}
+
+.author-avatar {
+  width: 24px;
+  height: 24px;
+  border-radius: 50%;
+  object-fit: cover;
+}
+
+.author-name {
+  font-size: 0.9rem;
+  color: var(--text-muted);
+}
+
+.article-date {
+  font-size: 0.9rem;
+  color: var(--text-muted);
+}
+
+.article-site {
+  font-size: 0.9rem;
+  color: var(--primary-color);
+  font-weight: 600;
+}
+
+.article-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(350px, 1fr));
+  gap: 1.5rem;
+  margin-top: 2rem;
+}
+
+/* レスポンシブ対応 */
+@media (max-width: 768px) {
+  .article-grid {
+    grid-template-columns: 1fr;
+    gap: 1rem;
+  }
+
+  .article-card {
+    margin-bottom: 1rem;
+  }
+
+  .article-content {
+    padding: 1rem;
+  }
+
+  .article-meta {
+    gap: 0.5rem;
+  }
+}
+
 @keyframes skeleton-loading {
   0% {
     background-position: -200% 0;
@@ -440,5 +565,80 @@ body {
 
   .book-summary {
     font-size: 0.8rem;
+  }
+}
+
+/* サイト別のテーマカラー適用 */
+/* Qiitaカード用スタイル */
+.article-card[data-site="qiita"],
+.zenn-card[data-site="qiita"] {
+  border-color: rgba(85, 197, 0, 0.2);
+}
+
+.article-card[data-site="qiita"]:hover,
+.zenn-card[data-site="qiita"]:hover {
+  border-color: var(--qiita-color);
+  box-shadow: 0 8px 25px rgba(85, 197, 0, 0.15);
+}
+
+.article-card[data-site="qiita"] .article-site,
+.zenn-card[data-site="qiita"] .article-site {
+  color: var(--qiita-color);
+}
+
+/* Zennカード用スタイル */
+.article-card[data-site="zenn"],
+.zenn-card[data-site="zenn"] {
+  border-color: rgba(62, 168, 255, 0.2);
+}
+
+.article-card[data-site="zenn"]:hover,
+.zenn-card[data-site="zenn"]:hover {
+  border-color: var(--zenn-color);
+  box-shadow: 0 8px 25px rgba(62, 168, 255, 0.15);
+}
+
+.article-card[data-site="zenn"] .article-site,
+.zenn-card[data-site="zenn"] .article-site {
+  color: var(--zenn-color);
+}
+
+/* 統合RSS用のスタイル */
+.articles-container {
+  margin-top: 3rem;
+}
+
+.feed-stats {
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+  margin-bottom: 0.5rem;
+}
+
+.feed-count {
+  font-size: 1rem;
+  font-weight: 600;
+  color: var(--text-color);
+}
+
+.feed-breakdown {
+  display: flex;
+  gap: 0.5rem;
+  font-size: 0.9rem;
+}
+
+.feed-breakdown span {
+  font-weight: 500;
+}
+
+@media (max-width: 768px) {
+  .feed-stats {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 0.5rem;
+  }
+
+  .feed-breakdown {
+    gap: 1rem;
   }
 }
